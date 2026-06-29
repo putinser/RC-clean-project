@@ -3,17 +3,17 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@screens/*": ["src/screens/*"],
-      "@navigation/*": ["src/navigation/*"],
+      "@app/*": ["src/app/*"],
+      "@widgets/*": ["src/widgets/*"],
+      "@features/*": ["src/features/*"],
+      "@entities/*": ["src/entities/*"],
+      "@shared/*": ["src/shared/*"],
       "@services/*": ["src/services/*"],
-      "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"],
       "@assets/*": ["src/assets/*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./src"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "index.js", "App.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "index.js", "App.tsx", "src/uniwind-types.d.ts", "src/uniwind-globals.d.ts", "src/assets/svg.d.ts"],
   "exclude": [
     "**/node_modules",
     "**/Pods",

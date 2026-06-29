@@ -1,0 +1,133 @@
+import {useEffect, useState} from 'react';
+import {Modal, Pressable, View, useWindowDimensions} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Spinner} from 'heroui-native/spinner';
+import {X} from 'lucide-react-native';
+import type {ChartMetricId} from '../config/chartMetric';
+import type {ChartViewId} from '../config/chartView';
+import {useChartLandscapeMode} from '../model/useChartLandscapeMode';
+import type {ChartSkiaData} from '../lib/chartSkia.types';
+import type {ChartAssetStats, ChartLegalSeriesItem} from '../lib/chartView.types';
+import {ChartCanvas} from './ChartCanvas';
+import {ChartLegend} from './ChartLegend';
+import {ChartStatsOverlay} from './ChartStatsOverlay';
+
+type ChartLandscapeModalProps = {
+  visible: boolean;
+  onClose: () => void;
+  chartKey: string;
+  chartData: ChartSkiaData | null;
+  showSpinner: boolean;
+  assetStats: ChartAssetStats;
+  view: ChartViewId;
+  legalSeries: ChartLegalSeriesItem[];
+  priceColor: string;
+  latestSignalValue?: number;
+  signalThresholds?: {
+    overbought: number;
+    oversold: number;
+  };
+  metric: ChartMetricId;
+  isFiz: boolean;
+};
+
+export const ChartLandscapeModal = ({
+  visible,
+  onClose,
+  chartKey,
+  chartData,
+  showSpinner,
+  assetStats,
+  view,
+  legalSeries,
+  priceColor,
+  latestSignalValue,
+  signalThresholds,
+  metric,
+  isFiz,
+}: ChartLandscapeModalProps) => {
+  useChartLandscapeMode(visible);
+  const insets = useSafeAreaInsets();
+  const {width, height} = useWindowDimensions();
+  const isLandscapeReady = width > height;
+  const chartWidth = isLandscapeReady ? width - insets.left - insets.right : 0;
+  const [chartHeight, setChartHeight] = useState(0);
+
+  useEffect(() => {
+    if (!visible) {
+      setChartHeight(0);
+    }
+  }, [visible]);
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="fade"
+      presentationStyle="fullScreen"
+      supportedOrientations={['landscape-left', 'landscape-right']}
+      onRequestClose={onClose}>
+      <GestureHandlerRootView style={{flex: 1}}>
+        <View
+          className="flex-1 bg-background"
+          style={{
+            width: '100%',
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          }}>
+          <View
+            className="relative min-h-0 w-full flex-1"
+            onLayout={(event) => {
+              const nextHeight = event.nativeEvent.layout.height;
+              setChartHeight((previous) =>
+                previous === nextHeight ? previous : nextHeight,
+              );
+            }}>
+            {!isLandscapeReady || chartHeight === 0 ? (
+              <View className="flex-1 items-center justify-center">
+                <Spinner />
+              </View>
+            ) : (
+              <ChartCanvas
+                chartKey={`${chartKey}-landscape-${chartWidth}x${chartHeight}`}
+                chartData={chartData}
+                width={chartWidth}
+                height={chartHeight}
+                showSpinner={showSpinner}
+                variant="fullBleed"
+                compactGutters
+                overlay={
+                  <View className="absolute left-2 top-2 z-10">
+                    <ChartStatsOverlay stats={assetStats} />
+                  </View>
+                }
+              />
+            )}
+
+            <Pressable
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="Закрыть альбомный режим"
+              className="absolute right-3 top-3 z-20 h-9 w-9 items-center justify-center rounded-full bg-[#ffffff16]">
+              <X size={18} color="#FFFFFF" />
+            </Pressable>
+          </View>
+
+          <ChartLegend
+            view={view}
+            legalSeries={legalSeries}
+            priceColor={priceColor}
+            latestPrice={assetStats.latestPrice}
+            latestSignalValue={latestSignalValue}
+            signalThresholds={signalThresholds}
+            metric={metric}
+            isFiz={isFiz}
+            variant="compact"
+          />
+        </View>
+      </GestureHandlerRootView>
+    </Modal>
+  );
+};

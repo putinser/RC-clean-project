@@ -1,22 +1,9 @@
-/**
- * RC2App - React Native Application
- * Configured with TypeScript, ESLint, and Prettier
- */
+import './src/global.css';
+import {Providers} from '@app/providers';
+import {Uniwind} from 'uniwind';
 
-import React from 'react';
-import {StatusBar, useColorScheme} from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {HomeScreen} from './src/screens';
+Uniwind.setTheme('dark');
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <HomeScreen />
-    </SafeAreaProvider>
-  );
+export default function App() {
+  return <Providers />;
 }
-
-export default App;

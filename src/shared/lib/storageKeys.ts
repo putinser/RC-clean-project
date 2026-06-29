@@ -1,0 +1,6 @@
+export const STORAGE_KEYS = {
+  USER: '@CURRENT_USER',
+  AUTHORIZED: '@AUTHORIZED',
+  TOKENS: '@TOKENS',
+  FAVORITES: '@FAVORITES',
+} as const;
