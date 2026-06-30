@@ -1,8 +1,8 @@
-import {View, Text} from 'react-native';
+import {View, Text, Pressable, StyleSheet} from 'react-native';
 import {Card} from 'heroui-native/card';
-import {Button} from 'heroui-native/button';
 import {Check} from 'lucide-react-native';
 import {cn} from '@shared/lib/cn';
+import {MainButton} from '@shared/ui/MainButton';
 
 type TariffCardVariant = 'default' | 'primary';
 
@@ -82,22 +82,34 @@ export const TariffCard = ({
       </Card.Header>
 
       <Card.Footer className="pt-6 p-0 mt-6">
-        <Button
-          variant={variant === 'primary' ? 'primary' : 'outline'}
-          onPress={onPress}
-          className={cn(
-            'w-full h-[46px] rounded-2xl',
-            variant === 'primary' ? 'gradient-primary' : 'bg-[#181B22]',
-          )}>
-          <Button.Label
-            className={cn(
-              'text-base font-medium',
-              variant === 'primary' ? 'text-[#1D242E]' : 'text-foreground',
-            )}>
-            {buttonText}
-          </Button.Label>
-        </Button>
+        {variant === 'primary' ? (
+          <MainButton text={buttonText} onPress={onPress} />
+        ) : (
+          <Pressable
+            onPress={onPress}
+            style={styles.outlineButton}>
+            <Text style={styles.outlineLabel}>{buttonText}</Text>
+          </Pressable>
+        )}
       </Card.Footer>
     </Card>
   );
 };
+
+const styles = StyleSheet.create({
+  outlineButton: {
+    height: 48,
+    width: '100%',
+    borderRadius: 12,
+    backgroundColor: '#181B22',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#464B52',
+  },
+  outlineLabel: {
+    color: '#f4f8ff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+});

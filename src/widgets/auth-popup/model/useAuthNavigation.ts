@@ -12,14 +12,18 @@ export const useAuthNavigation = () => {
   const navigateWithAuth = useCallback(
     (state: AuthPopupState, extra?: {token?: string; resetId?: string}) => {
       const params: AuthNavParams = {state, ...extra};
-      if (state === AuthPopupState.CLOSED) {
-        navigation.navigate('Auth', params);
-        return;
-      }
       navigation.navigate('Auth', params);
     },
     [navigation],
   );
 
-  return {navigateWithAuth};
+  const goHome = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+    navigation.navigate('Main', {screen: 'Home'});
+  }, [navigation]);
+
+  return {navigateWithAuth, goHome};
 };

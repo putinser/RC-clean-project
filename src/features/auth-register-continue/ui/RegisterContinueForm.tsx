@@ -9,6 +9,8 @@ import {useAuthNavigation} from '@widgets/auth-popup/model/useAuthNavigation';
 import {AuthPopupState} from '@widgets/auth-popup/model/authPopupState';
 import {useAuthPopupStore} from '@widgets/auth-popup/model/useAuthPopupStore';
 
+import {authFormStyles} from '@shared/lib/authFormStyles';
+
 const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,}$/;
 
 type RegisterContinueFormProps = {
@@ -76,9 +78,10 @@ export const RegisterContinueForm = ({token}: RegisterContinueFormProps) => {
   };
 
   return (
-    <View className="w-full gap-4">
-      <AuthInput
-        placeholder="ФИО"
+    <View style={authFormStyles.root}>
+      <View style={authFormStyles.field}>
+        <AuthInput
+          placeholder="ФИО"
         value={name}
         onChangeText={(text) => {
           setName(text);
@@ -94,7 +97,9 @@ export const RegisterContinueForm = ({token}: RegisterContinueFormProps) => {
         isValid={!!name && !nameError}
         autoCapitalize="words"
       />
+      </View>
 
+      <View style={authFormStyles.field}>
       <AuthInput
         isPassword
         placeholder="Пароль"
@@ -113,11 +118,10 @@ export const RegisterContinueForm = ({token}: RegisterContinueFormProps) => {
         isValid={!!password && !passwordError}
         autoComplete="password-new"
       />
+      </View>
 
       {submitError ? (
-        <Text className="text-[13px] text-[#ec1c1c] text-center">
-          {submitError}
-        </Text>
+        <Text style={authFormStyles.error}>{submitError}</Text>
       ) : null}
 
       <AuthSubmitButton

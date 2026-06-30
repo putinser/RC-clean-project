@@ -1,7 +1,6 @@
 import {useState} from 'react';
-import {View, Text, TextInput, Pressable} from 'react-native';
+import {View, Text, TextInput, Pressable, StyleSheet} from 'react-native';
 import {Eye, EyeOff} from 'lucide-react-native';
-import {cn} from '@shared/lib/cn';
 
 type AuthInputProps = {
   value: string;
@@ -14,7 +13,6 @@ type AuthInputProps = {
   autoComplete?: string;
   keyboardType?: 'default' | 'email-address' | 'visible-password';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  className?: string;
   editable?: boolean;
 };
 
@@ -29,15 +27,16 @@ export const AuthInput = ({
   autoComplete,
   keyboardType,
   autoCapitalize = 'none',
-  className,
   editable = true,
 }: AuthInputProps) => {
   const [visible, setVisible] = useState(false);
   const isSecure = isPassword && !visible;
 
+  const borderColor = error ? '#ec1c1c' : isValid ? '#1bcd54' : '#464b52';
+
   return (
-    <View className="w-full">
-      <View className="relative w-full">
+    <View style={styles.root}>
+      <View style={[styles.field, {borderColor}]}>
         <TextInput
           value={value}
           onChangeText={onChangeText}
@@ -49,17 +48,12 @@ export const AuthInput = ({
           keyboardType={keyboardType ?? (isPassword ? 'default' : 'email-address')}
           autoCapitalize={autoCapitalize}
           editable={editable}
-          className={cn(
-            'h-12 px-4 rounded-[14px] border bg-[#181b22] text-foreground text-[15px]',
-            error ? 'border-[#ec1c1c]' : isValid ? 'border-[#1bcd54]' : 'border-[#464b52]',
-            isPassword && 'pr-12',
-            className,
-          )}
+          style={[styles.input, isPassword && styles.inputPassword]}
         />
         {isPassword ? (
           <Pressable
             onPress={() => setVisible((v) => !v)}
-            className="absolute right-4 top-0 bottom-0 items-center justify-center"
+            style={styles.eye}
             accessibilityLabel={visible ? 'Скрыть пароль' : 'Показать пароль'}>
             {visible ? (
               <EyeOff color="#a6aab2" size={20} />
@@ -69,9 +63,43 @@ export const AuthInput = ({
           </Pressable>
         ) : null}
       </View>
-      {error ? (
-        <Text className="mt-1.5 text-[13px] text-[#ec1c1c]">{error}</Text>
-      ) : null}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  root: {
+    width: '100%',
+  },
+  field: {
+    width: '100%',
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    backgroundColor: '#181b22',
+  },
+  input: {
+    flex: 1,
+    height: '100%',
+    color: '#f4f8ff',
+    fontSize: 15,
+    padding: 0,
+  },
+  inputPassword: {
+    paddingRight: 8,
+  },
+  eye: {
+    paddingLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  error: {
+    marginTop: 6,
+    fontSize: 13,
+    color: '#ec1c1c',
+  },
+});

@@ -1,29 +1,24 @@
-import {Button} from 'heroui-native/button';
-import type {ButtonRootProps} from 'heroui-native/button';
+import {Pressable, Text, type ViewStyle} from 'react-native';
+import {primaryButtonStyles} from '@shared/lib/primaryButtonStyles';
 
 type MainButtonProps = {
   text: string;
   onPress?: () => void;
-  className?: string;
-} & Partial<Pick<ButtonRootProps, 'isDisabled' | 'size'>>;
+  style?: ViewStyle;
+  isDisabled?: boolean;
+};
 
-export const MainButton = ({
-  text,
-  onPress,
-  className,
-  isDisabled,
-  size,
-}: MainButtonProps) => {
+export const MainButton = ({text, onPress, style, isDisabled}: MainButtonProps) => {
   return (
-    <Button
-      variant="primary"
+    <Pressable
       onPress={onPress}
-      isDisabled={isDisabled}
-      size={size}
-      className={className}>
-      <Button.Label className="text-[#1D242E] text-base font-medium">
-        {text}
-      </Button.Label>
-    </Button>
+      disabled={isDisabled}
+      style={[
+        primaryButtonStyles.button,
+        style,
+        isDisabled && primaryButtonStyles.buttonDisabled,
+      ]}>
+      <Text style={primaryButtonStyles.label}>{text}</Text>
+    </Pressable>
   );
 };

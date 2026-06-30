@@ -10,6 +10,8 @@ import {useUserStore} from '@entities/user';
 import {AuthPopupState} from '../model/authPopupState';
 import {AuthPopupContent} from './AuthPopupContent';
 
+import {authPopupStyles} from '@shared/lib/authFormStyles';
+
 export const AuthScreen = () => {
   const navigation = useNavigation<AppStackNavigation>();
   const route = useRoute<RouteProp<AppStackParamList, 'Auth'>>();
@@ -23,26 +25,42 @@ export const AuthScreen = () => {
       if (navigation.canGoBack()) {
         navigation.goBack();
       } else {
-        navigation.navigate('Home');
+        navigation.navigate('Main', {screen: 'Home'});
       }
     }
   }, [state, navigation]);
 
+  useEffect(() => {
+    if (isAuthorized && state !== AuthPopupState.HELLO) {
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        navigation.navigate('Main', {screen: 'Home'});
+      }
+    }
+  }, [isAuthorized, state, navigation]);
+
   if (loadingStatus === 'initial') {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <Text className="text-text-secondary">Загрузка...</Text>
+      <View style={authPopupStyles.loading}>
+        <Text style={authPopupStyles.loadingText}>Загрузка...</Text>
       </View>
     );
   }
 
-  if (isAuthorized && state !== AuthPopupState.HELLO) {
-    navigation.navigate('Home');
-    return null;
+  if (
+    state === AuthPopupState.CLOSED ||
+    (isAuthorized && state !== AuthPopupState.HELLO)
+  ) {
+    return (
+      <View style={authPopupStyles.loading}>
+        <Text style={authPopupStyles.loadingText}>Загрузка...</Text>
+      </View>
+    );
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <View style={authPopupStyles.screen}>
       <AuthPopupContent
         state={state}
         token={route.params?.token}

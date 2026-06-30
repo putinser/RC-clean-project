@@ -6,6 +6,7 @@ import {serviceAuth} from '@services/auth';
 import {useAuthNavigation} from '@widgets/auth-popup/model/useAuthNavigation';
 import {AuthPopupState} from '@widgets/auth-popup/model/authPopupState';
 import {useAuthPopupStore} from '@widgets/auth-popup/model/useAuthPopupStore';
+import {authFormStyles} from '@shared/lib/authFormStyles';
 
 export const RegisterStartForm = () => {
   const [email, setEmail] = useState('');
@@ -53,13 +54,14 @@ export const RegisterStartForm = () => {
   };
 
   return (
-    <View className="w-full gap-4">
+    <View style={authFormStyles.root}>
       {isSuccess ? (
-        <Text className="text-center text-sm text-text-secondary">
+        <Text style={authFormStyles.successText}>
           Письмо с ссылкой для продолжения регистрации отправлено на {email}
         </Text>
       ) : (
-        <AuthInput
+        <View style={authFormStyles.field}>
+          <AuthInput
           placeholder="Email"
           value={email}
           onChangeText={(text) => {
@@ -77,12 +79,11 @@ export const RegisterStartForm = () => {
           editable={!isSuccess}
           autoComplete="email"
         />
+        </View>
       )}
 
       {submitError ? (
-        <Text className="text-[13px] text-[#ec1c1c] text-center">
-          {submitError}
-        </Text>
+        <Text style={authFormStyles.error}>{submitError}</Text>
       ) : null}
 
       <AuthSubmitButton

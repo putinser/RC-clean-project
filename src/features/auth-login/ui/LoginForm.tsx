@@ -9,6 +9,7 @@ import {ApiError} from '@services/api';
 import {useAuthNavigation} from '@widgets/auth-popup/model/useAuthNavigation';
 import {AuthPopupState} from '@widgets/auth-popup/model/authPopupState';
 import {useAuthPopupStore} from '@widgets/auth-popup/model/useAuthPopupStore';
+import {authFormStyles, authPopupStyles} from '@shared/lib/authFormStyles';
 
 export const LoginForm = () => {
   const [login, setLogin] = useState('');
@@ -79,54 +80,56 @@ export const LoginForm = () => {
   };
 
   return (
-    <View className="w-full gap-4">
-      <AuthInput
-        placeholder="Email"
-        value={login}
-        onChangeText={(text) => {
-          setLogin(text);
-          if (touched.login) setLoginError(validateLogin(text));
-        }}
-        onBlur={() => {
-          setTouched((t) => ({...t, login: true}));
-          const err = validateLogin(login);
-          setLoginError(err);
-          setFormInvalid(!!err);
-        }}
-        error={touched.login ? loginError : undefined}
-        isValid={!!login && !loginError}
-        autoComplete="username"
-      />
+    <View style={authFormStyles.root}>
+      <View style={authFormStyles.field}>
+        <AuthInput
+          placeholder="Email"
+          value={login}
+          onChangeText={(text) => {
+            setLogin(text);
+            if (touched.login) setLoginError(validateLogin(text));
+          }}
+          onBlur={() => {
+            setTouched((t) => ({...t, login: true}));
+            const err = validateLogin(login);
+            setLoginError(err);
+            setFormInvalid(!!err);
+          }}
+          error={touched.login ? loginError : undefined}
+          isValid={!!login && !loginError}
+          autoComplete="username"
+        />
+      </View>
 
-      <AuthInput
-        isPassword
-        placeholder="Пароль, не менее 4 символов"
-        value={password}
-        onChangeText={(text) => {
-          setPassword(text);
-          if (touched.password) setPasswordError(validatePassword(text));
-        }}
-        onBlur={() => {
-          setTouched((t) => ({...t, password: true}));
-          const err = validatePassword(password);
-          setPasswordError(err);
-          setFormInvalid(!!err);
-        }}
-        error={touched.password ? passwordError : undefined}
-        isValid={!!password && !passwordError}
-        autoComplete="password"
-      />
+      <View style={authFormStyles.field}>
+        <AuthInput
+          isPassword
+          placeholder="Пароль, не менее 4 символов"
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            if (touched.password) setPasswordError(validatePassword(text));
+          }}
+          onBlur={() => {
+            setTouched((t) => ({...t, password: true}));
+            const err = validatePassword(password);
+            setPasswordError(err);
+            setFormInvalid(!!err);
+          }}
+          error={touched.password ? passwordError : undefined}
+          isValid={!!password && !passwordError}
+          autoComplete="password"
+        />
+      </View>
 
       <Pressable
         onPress={() => navigateWithAuth(AuthPopupState.RESET_PASSWORD_START)}
-        className="self-center">
-        <Text className="text-primary text-center">Забыл пароль</Text>
+        style={authFormStyles.linkWrap}>
+        <Text style={authFormStyles.link}>Забыл пароль</Text>
       </Pressable>
 
       {submitError ? (
-        <Text className="text-[13px] text-[#ec1c1c] text-center">
-          {submitError}
-        </Text>
+        <Text style={authFormStyles.error}>{submitError}</Text>
       ) : null}
 
       <AuthSubmitButton

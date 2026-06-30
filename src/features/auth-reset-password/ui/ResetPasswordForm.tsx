@@ -7,6 +7,8 @@ import {useAuthNavigation} from '@widgets/auth-popup/model/useAuthNavigation';
 import {AuthPopupState} from '@widgets/auth-popup/model/authPopupState';
 import {useAuthPopupStore} from '@widgets/auth-popup/model/useAuthPopupStore';
 
+import {authFormStyles} from '@shared/lib/authFormStyles';
+
 export const ResetPasswordForm = () => {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -53,12 +55,13 @@ export const ResetPasswordForm = () => {
   };
 
   return (
-    <View className="w-full gap-4">
+    <View style={authFormStyles.root}>
       {isSuccess ? (
-        <Text className="text-center text-sm text-text-secondary">
+        <Text style={authFormStyles.successText}>
           Письмо для восстановления пароля отправлено на {email}
         </Text>
       ) : (
+        <View style={authFormStyles.field}>
         <AuthInput
           placeholder="Email"
           value={email}
@@ -77,12 +80,11 @@ export const ResetPasswordForm = () => {
           editable={!isSuccess}
           autoComplete="email"
         />
+        </View>
       )}
 
       {submitError ? (
-        <Text className="text-[13px] text-[#ec1c1c] text-center">
-          {submitError}
-        </Text>
+        <Text style={authFormStyles.error}>{submitError}</Text>
       ) : null}
 
       <AuthSubmitButton

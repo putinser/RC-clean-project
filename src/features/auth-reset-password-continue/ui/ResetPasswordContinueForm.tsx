@@ -7,6 +7,8 @@ import {useAuthNavigation} from '@widgets/auth-popup/model/useAuthNavigation';
 import {AuthPopupState} from '@widgets/auth-popup/model/authPopupState';
 import {useAuthPopupStore} from '@widgets/auth-popup/model/useAuthPopupStore';
 
+import {authFormStyles} from '@shared/lib/authFormStyles';
+
 const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,}$/;
 
 type ResetPasswordContinueFormProps = {
@@ -66,12 +68,13 @@ export const ResetPasswordContinueForm = ({
   };
 
   return (
-    <View className="w-full gap-4">
+    <View style={authFormStyles.root}>
       {isSuccess ? (
-        <Text className="text-center text-sm text-text-secondary">
+        <Text style={authFormStyles.successText}>
           Пароль успешно изменён. Теперь вы можете войти.
         </Text>
       ) : (
+        <View style={authFormStyles.field}>
         <AuthInput
           isPassword
           placeholder="Новый пароль"
@@ -90,12 +93,11 @@ export const ResetPasswordContinueForm = ({
           isValid={!!password && !passwordError}
           autoComplete="password-new"
         />
+        </View>
       )}
 
       {submitError ? (
-        <Text className="text-[13px] text-[#ec1c1c] text-center">
-          {submitError}
-        </Text>
+        <Text style={authFormStyles.error}>{submitError}</Text>
       ) : null}
 
       <AuthSubmitButton

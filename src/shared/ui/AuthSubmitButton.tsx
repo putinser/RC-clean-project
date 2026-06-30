@@ -1,11 +1,11 @@
-import {Button} from 'heroui-native/button';
-import {cn} from '@shared/lib/cn';
+import {Pressable, Text, ActivityIndicator, type ViewStyle} from 'react-native';
+import {primaryButtonStyles} from '@shared/lib/primaryButtonStyles';
 
 type AuthSubmitButtonProps = {
   children: string;
   disabled?: boolean;
   loading?: boolean;
-  className?: string;
+  style?: ViewStyle;
   onPress: () => void;
 };
 
@@ -13,18 +13,25 @@ export const AuthSubmitButton = ({
   children,
   disabled,
   loading,
-  className,
+  style,
   onPress,
 }: AuthSubmitButtonProps) => {
+  const isDisabled = disabled || loading;
+
   return (
-    <Button
-      variant="primary"
+    <Pressable
       onPress={onPress}
-      isDisabled={disabled || loading}
-      className={cn('gradient-primary h-12 w-full rounded-xl', className)}>
-      <Button.Label className="text-[#1D242E] text-base font-medium">
-        {loading ? 'Загрузка...' : children}
-      </Button.Label>
-    </Button>
+      disabled={isDisabled}
+      style={[
+        primaryButtonStyles.button,
+        style,
+        isDisabled && primaryButtonStyles.buttonDisabled,
+      ]}>
+      {loading ? (
+        <ActivityIndicator color="#1D242E" />
+      ) : (
+        <Text style={primaryButtonStyles.label}>{children}</Text>
+      )}
+    </Pressable>
   );
 };

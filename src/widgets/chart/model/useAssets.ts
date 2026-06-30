@@ -53,7 +53,7 @@ export const useAssets = (
   );
   const assetsCacheRef = useRef<
     Partial<
-      Record<AssetTypeId, Pick<AssetsState, 'available' | 'unavailable'>>
+      Record<string, Pick<AssetsState, 'available' | 'unavailable'>>
     >
   >({});
   const chartDataMode = getChartDataMode(view);
@@ -101,7 +101,8 @@ export const useAssets = (
         return;
       }
 
-      const cached = assetsCacheRef.current[assetType];
+      const cacheKey = `${assetType}:${isAuthorized}`;
+      const cached = assetsCacheRef.current[cacheKey];
       if (cached) {
         setAssets({
           available: cached.available,
@@ -116,7 +117,7 @@ export const useAssets = (
         const data = await serviceAssets.getAssets(assetType);
 
         if (!isCancelled) {
-          assetsCacheRef.current[assetType] = {
+          assetsCacheRef.current[cacheKey] = {
             available: data.avalible,
             unavailable: data.unavalible,
           };
@@ -255,6 +256,7 @@ export const useAssets = (
     interval,
     period,
     isFiz,
+    isAuthorized,
   ]);
 
   return {
