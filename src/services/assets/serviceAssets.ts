@@ -1,4 +1,5 @@
 import {api, type FetchOptions} from '@services/api';
+import {buildAssetsQueryParams} from './lib/buildAssetsQueryParams';
 import type {
   ApiResponse,
   AssetItem,
@@ -39,8 +40,9 @@ export const serviceAssets = {
     search: string = '',
     options?: Pick<FetchOptions, 'authTokens'>,
   ): Promise<AssetsData> => {
+    const {search: searchParam, isin} = buildAssetsQueryParams(search);
     const response = await api.get<AssetsResponse>('/assets', {
-      params: {search, type, isin: ''},
+      params: {search: searchParam, type, isin},
       authTokens: options?.authTokens,
     });
     return response.data.data;

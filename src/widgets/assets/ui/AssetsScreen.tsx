@@ -1,15 +1,30 @@
-import {View, Text} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {
+  useNavigation,
+  useRoute,
+  type RouteProp,
+} from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import type {
+  MainTabNavigation,
+  MainTabParamList,
+} from '@shared/types/navigation';
+import { AssetsController } from './AssetsController';
 
 export const AssetsScreen = () => {
+  const route = useRoute<RouteProp<MainTabParamList, 'Assets'>>();
+  const navigation = useNavigation<MainTabNavigation>();
+  const selectedAssetId = route.params?.selectedAssetId ?? null;
+
+  const handleClearSelectedAsset = () => {
+    navigation.setParams({ selectedAssetId: undefined });
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="flex-1 items-center justify-center p-4">
-        <Text className="text-foreground text-lg font-bold">Активы</Text>
-        <Text className="text-text-secondary text-sm mt-2">
-          Раздел в разработке (Фаза 6)
-        </Text>
-      </View>
+      <AssetsController
+        selectedAssetId={selectedAssetId}
+        onClearSelectedAsset={handleClearSelectedAsset}
+      />
     </SafeAreaView>
   );
 };
