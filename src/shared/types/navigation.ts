@@ -1,7 +1,13 @@
-import type {CompositeNavigationProp, ParamListBase} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
-import {AuthPopupState, type AuthNavParams} from '@widgets/auth-popup/model/authPopupState';
+import type {
+  CompositeNavigationProp,
+  ParamListBase,
+} from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import {
+  AuthPopupState,
+  type AuthNavParams,
+} from '@widgets/auth-popup/model/authPopupState';
 
 export type AppStackParamList = {
   Main:
@@ -15,10 +21,12 @@ export type AppStackParamList = {
 
 export type MainTabParamList = {
   Home: undefined;
-  Chart: {type?: string; assetId?: number} | undefined;
-  Signals: {selectedAssetId?: number} | undefined;
-  Assets: {selectedAssetId?: number} | undefined;
-  Tariffs: undefined;
+  Chart: { type?: string; assetId?: number } | undefined;
+  Signals: { selectedAssetId?: number } | undefined;
+  Assets: { selectedAssetId?: number } | undefined;
+  Screener:
+    | { selectedAssetId?: number; selectedAssetName?: string }
+    | undefined;
 };
 
 export type AppStackNavigation = NativeStackNavigationProp<AppStackParamList>;
@@ -30,13 +38,13 @@ export type LandingNavigation = CompositeNavigationProp<
 >;
 
 export const navigateToAuth = (
-  navigation: {navigate: (route: string, params?: object) => void},
+  navigation: { navigate: (route: string, params?: object) => void },
   state: AuthPopupState,
-  extra?: {token?: string; resetId?: string},
+  extra?: { token?: string; resetId?: string },
 ) => {
   if (state === AuthPopupState.CLOSED) {
-    navigation.navigate('Auth', {state});
+    navigation.navigate('Auth', { state });
     return;
   }
-  navigation.navigate('Auth', {state, ...extra});
+  navigation.navigate('Auth', { state, ...extra });
 };

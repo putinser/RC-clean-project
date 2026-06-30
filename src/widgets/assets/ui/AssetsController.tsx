@@ -7,9 +7,10 @@ import { AuthPopupState } from '@widgets/auth-popup/model/authPopupState';
 import { useAuthNavigation } from '@widgets/auth-popup/model/useAuthNavigation';
 import { assetTypeTabOptions } from '@widgets/chart/config/assetTypes';
 import { formatAssetDisplayName } from '@widgets/chart/lib/formatAssetDisplayName';
-import { ChartSelect } from '@widgets/chart/ui/ChartSelect';
-import { cn } from '@shared/lib/cn';
-import type { MainTabNavigation } from '@shared/types/navigation';
+import {ChartSelect} from '@widgets/chart/ui/ChartSelect';
+import {useLandingScrollStore} from '@widgets/landing/model/landingScroll';
+import {cn} from '@shared/lib/cn';
+import type {MainTabNavigation} from '@shared/types/navigation';
 import { useAssetsPage } from '../model/useAssetsPage';
 import type { AssetsControllerProps } from '../model/types';
 import { AssetsTable } from './AssetsTable';
@@ -19,6 +20,7 @@ export const AssetsController = ({
   onClearSelectedAsset,
 }: AssetsControllerProps) => {
   const navigation = useNavigation<MainTabNavigation>();
+  const setPendingAnchor = useLandingScrollStore(s => s.setPendingAnchor);
   const {
     assetType,
     searchQuery,
@@ -204,7 +206,10 @@ export const AssetsController = ({
                   Откройте доступ к закрытым инструментам через тарифный план.
                 </Text>
                 <Pressable
-                  onPress={() => navigation.navigate('Tariffs')}
+                  onPress={() => {
+                    navigation.navigate('Home');
+                    setPendingAnchor('tariffs');
+                  }}
                   className="mt-1 h-10 items-center justify-center rounded-lg bg-primary px-4"
                 >
                   <Text className="text-sm font-bold text-[#051014]">

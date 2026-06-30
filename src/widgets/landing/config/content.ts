@@ -106,7 +106,7 @@ export const cardStats = [
   },
 ];
 
-import {BadgeCheck} from 'lucide-react-native';
+import { BadgeCheck } from 'lucide-react-native';
 
 export const tariffsHeader = {
   title: 'Тарифы под разные аналитические задачи',
@@ -115,15 +115,15 @@ export const tariffsHeader = {
 } as const;
 
 export const headerButtons = [
-  {id: '1', label: 'График', target: 'Chart' as const},
-  {id: '2', label: 'Возможности', anchor: 'capabilities' as const},
-  {id: '3', label: 'Как работает', anchor: 'how-it-works' as const},
-  {id: '4', label: 'Тарифы', target: 'Tariffs' as const},
+  { id: '1', label: 'График', target: 'Chart' as const },
+  { id: '2', label: 'Возможности', anchor: 'capabilities' as const },
+  { id: '3', label: 'Как работает', anchor: 'how-it-works' as const },
+  { id: '4', label: 'Тарифы', anchor: 'tariffs' as const },
 ];
 
 export const footerButtons = [
-  {id: '1', label: 'График', target: 'Chart' as const},
-  {id: '2', label: 'Возможности', anchor: 'capabilities' as const},
-  {id: '3', label: 'Как работает', anchor: 'how-it-works' as const},
-  {id: '4', label: 'Тарифы', target: 'Tariffs' as const},
+  { id: '1', label: 'График', target: 'Chart' as const },
+  { id: '2', label: 'Возможности', anchor: 'capabilities' as const },
+  { id: '3', label: 'Как работает', anchor: 'how-it-works' as const },
+  { id: '4', label: 'Тарифы', anchor: 'tariffs' as const },
 ];
