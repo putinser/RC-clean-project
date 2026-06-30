@@ -186,9 +186,14 @@ export const buildSkiaChartPaths = (
   chartData: ChartSkiaData,
   width: number,
   height: number,
-  options?: {compactGutters?: boolean},
+  options?: {compactGutters?: boolean; yAxisFontSize?: number},
 ) => {
-  const plot = getChartPlotLayout(width, height, options);
+  const plot = getChartPlotLayout(width, height, {
+    compactGutters: options?.compactGutters,
+    leftYAxis: chartData.leftYAxis,
+    rightYAxis: chartData.rightYAxis,
+    yAxisFontSize: options?.yAxisFontSize,
+  });
   const maxRenderPoints = getMaxRenderPoints(plot.width);
   const {min: xMin, max: xMax} = chartData.xRange;
   const seriesPaths: ChartRenderedPath[] = [];

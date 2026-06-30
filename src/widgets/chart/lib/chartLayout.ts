@@ -1,16 +1,59 @@
 import type {ChartPlotLayout, ChartYAxisConfig} from './chartSkia.types';
 
-const MIN_LEFT_GUTTER = 44;
-const MIN_RIGHT_GUTTER = 52;
-const LANDSCAPE_LEFT_GUTTER = 48;
-const LANDSCAPE_RIGHT_GUTTER = 74;
+const AXIS_GUTTER_PADDING = 8;
+const MIN_GUTTER = 24;
+const MAX_GUTTER_RATIO = 0.3;
 const LANDSCAPE_TOP_INSET = 42;
 const LANDSCAPE_BOTTOM_INSET = 28;
 const GRID_TOP_RATIO = 0.12;
 const GRID_BOTTOM_RATIO = 0.1;
+const WIDE_LAYOUT_MIN_WIDTH = 600;
 
 type ChartPlotLayoutOptions = {
   compactGutters?: boolean;
+  leftYAxis?: ChartYAxisConfig;
+  rightYAxis?: ChartYAxisConfig;
+  yAxisFontSize?: number;
+};
+
+const estimateLabelWidth = (
+  label: string,
+  fontSize: number,
+  chartWidth: number,
+) => {
+  let width = 0;
+
+  for (const char of label) {
+    const isDigit = char >= '0' && char <= '9';
+    width += (isDigit ? 0.4 : 0.8) * fontSize;
+  }
+
+  const safetyMultiplier =
+    chartWidth >= WIDE_LAYOUT_MIN_WIDTH ? 1.2 : 1;
+
+  return Math.ceil(width * safetyMultiplier);
+};
+
+const measureYAxisGutter = (
+  axis: ChartYAxisConfig,
+  fontSize: number,
+  maxGutter: number,
+  chartWidth: number,
+) => {
+  const ticks = buildYAxisTicks(axis);
+  let maxLabelWidth = 0;
+
+  for (const tick of ticks) {
+    maxLabelWidth = Math.max(
+      maxLabelWidth,
+      estimateLabelWidth(tick.label, fontSize, chartWidth),
+    );
+  }
+
+  return Math.min(
+    maxGutter,
+    Math.max(MIN_GUTTER, maxLabelWidth + AXIS_GUTTER_PADDING),
+  );
 };
 
 export const getChartPlotLayout = (
@@ -19,12 +62,16 @@ export const getChartPlotLayout = (
   options?: ChartPlotLayoutOptions,
 ): ChartPlotLayout => {
   const compactGutters = options?.compactGutters ?? false;
-  const leftGutter = compactGutters
-    ? LANDSCAPE_LEFT_GUTTER
-    : Math.max(Math.round(width * 0.14), MIN_LEFT_GUTTER);
-  const rightGutter = compactGutters
-    ? LANDSCAPE_RIGHT_GUTTER
-    : Math.max(Math.round(width * 0.16), MIN_RIGHT_GUTTER);
+  const fontSize = options?.yAxisFontSize ?? 10;
+  const maxGutter = Math.max(MIN_GUTTER, Math.round(width * MAX_GUTTER_RATIO));
+
+  const leftGutter = options?.leftYAxis
+    ? measureYAxisGutter(options.leftYAxis, fontSize, maxGutter, width)
+    : MIN_GUTTER;
+  const rightGutter = options?.rightYAxis
+    ? measureYAxisGutter(options.rightYAxis, fontSize, maxGutter, width)
+    : MIN_GUTTER;
+
   const top = compactGutters ? LANDSCAPE_TOP_INSET : height * GRID_TOP_RATIO;
   const bottom = compactGutters
     ? LANDSCAPE_BOTTOM_INSET

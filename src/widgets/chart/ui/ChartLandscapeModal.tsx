@@ -51,14 +51,16 @@ export const ChartLandscapeModal = ({
   const insets = useSafeAreaInsets();
   const {width, height} = useWindowDimensions();
   const isLandscapeReady = width > height;
-  const chartWidth = isLandscapeReady ? width - insets.left - insets.right : 0;
-  const [chartHeight, setChartHeight] = useState(0);
+  const [chartSize, setChartSize] = useState({width: 0, height: 0});
 
   useEffect(() => {
     if (!visible) {
-      setChartHeight(0);
+      setChartSize({width: 0, height: 0});
     }
   }, [visible]);
+
+  const chartWidth = chartSize.width;
+  const chartHeight = chartSize.height;
 
   return (
     <Modal
@@ -80,12 +82,15 @@ export const ChartLandscapeModal = ({
           <View
             className="relative min-h-0 w-full flex-1"
             onLayout={(event) => {
-              const nextHeight = event.nativeEvent.layout.height;
-              setChartHeight((previous) =>
-                previous === nextHeight ? previous : nextHeight,
+              const {width: nextWidth, height: nextHeight} =
+                event.nativeEvent.layout;
+              setChartSize((previous) =>
+                previous.width === nextWidth && previous.height === nextHeight
+                  ? previous
+                  : {width: nextWidth, height: nextHeight},
               );
             }}>
-            {!isLandscapeReady || chartHeight === 0 ? (
+            {!isLandscapeReady || chartWidth === 0 || chartHeight === 0 ? (
               <View className="flex-1 items-center justify-center">
                 <Spinner />
               </View>

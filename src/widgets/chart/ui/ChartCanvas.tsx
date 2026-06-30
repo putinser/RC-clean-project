@@ -11,6 +11,7 @@ import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {Spinner} from 'heroui-native/spinner';
 import {buildChartTooltipLines} from '../lib/buildChartTooltip';
+import {getChartYAxisScale} from '@shared/lib/deviceLayout';
 import {buildSkiaChartPaths} from '../lib/buildSkiaPaths';
 import {xToTimestamp} from '../lib/chartLayout';
 import type {ChartSkiaData, ChartTooltipState} from '../lib/chartSkia.types';
@@ -20,6 +21,7 @@ import {ChartStaticLayer} from './ChartStaticLayer';
 const TOOLTIP_OFFSET_X = 248;
 const TOOLTIP_OFFSET_Y = 96;
 const TOOLTIP_WIDTH = 200;
+const CANVAS_FRAME_PADDING = 24;
 
 type ChartCanvasProps = {
   chartKey: string;
@@ -31,6 +33,7 @@ type ChartCanvasProps = {
   variant?: 'default' | 'fullBleed';
   fill?: boolean;
   compactGutters?: boolean;
+  compactFrame?: boolean;
 };
 
 export const ChartCanvas = ({
@@ -43,6 +46,7 @@ export const ChartCanvas = ({
   variant = 'default',
   fill = false,
   compactGutters = false,
+  compactFrame = false,
 }: ChartCanvasProps) => {
   const isFullBleed = variant === 'fullBleed';
   const [fillSize, setFillSize] = useState({width: 0, height: 0});
@@ -58,6 +62,7 @@ export const ChartCanvas = ({
   const pendingTouchRef = useRef<{x: number; y: number} | null>(null);
 
   chartDataRef.current = deferredChartData;
+  const yAxisFontSize = getChartYAxisScale(width).fontSize;
 
   const rendered = useMemo(() => {
     if (!deferredChartData) {
@@ -67,10 +72,11 @@ export const ChartCanvas = ({
 
     const nextRendered = buildSkiaChartPaths(deferredChartData, width, height, {
       compactGutters,
+      yAxisFontSize,
     });
     plotRef.current = nextRendered.plot;
     return nextRendered;
-  }, [compactGutters, deferredChartData, width, height]);
+  }, [compactGutters, deferredChartData, width, height, yAxisFontSize]);
 
   const applyTooltipAt = useCallback((x: number, y: number) => {
     const plot = plotRef.current;
@@ -265,6 +271,36 @@ export const ChartCanvas = ({
     );
   }
 
+  if (fill) {
+    return (
+      <View
+        className="flex-1 self-stretch rounded-2xl border border-[#21262d] bg-[#0F1115] p-3"
+        onLayout={(event) => {
+          const {width: nextWidth, height: nextHeight} = event.nativeEvent.layout;
+          setFillSize((previous) =>
+            previous.width === nextWidth - CANVAS_FRAME_PADDING &&
+            previous.height === nextHeight - CANVAS_FRAME_PADDING
+              ? previous
+              : {
+                  width: Math.max(nextWidth - CANVAS_FRAME_PADDING, 0),
+                  height: Math.max(nextHeight - CANVAS_FRAME_PADDING, 0),
+                },
+          );
+        }}>
+        <View
+          style={{
+            width: width > 0 ? width : '100%',
+            height: height > 0 ? height : '100%',
+            flex: 1,
+            minHeight: 200,
+          }}
+          className="relative overflow-hidden rounded-xl bg-[#0d1117]">
+          {showSpinner || (width > 0 && height > 0) ? chartBody : null}
+        </View>
+      </View>
+    );
+  }
+
   if (isFullBleed) {
     return (
       <View
@@ -276,10 +312,19 @@ export const ChartCanvas = ({
   }
 
   return (
-    <View className="rounded-2xl border border-[#21262d] bg-[#0F1115] p-3">
+    <View
+      className={
+        compactFrame
+          ? 'overflow-hidden rounded-2xl border border-[#21262d] bg-[#0d1117] -px-1 py-3'
+          : 'rounded-2xl border border-[#21262d] bg-[#0F1115] p-3'
+      }>
       <View
         style={{width, height}}
-        className="relative overflow-hidden rounded-xl bg-[#0d1117]">
+        className={
+          compactFrame
+            ? 'relative bg-[#0d1117]'
+            : 'relative overflow-hidden rounded-xl bg-[#0d1117]'
+        }>
         {chartBody}
       </View>
     </View>

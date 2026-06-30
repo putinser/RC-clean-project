@@ -1,5 +1,6 @@
 import {memo} from 'react';
 import {Text, View} from 'react-native';
+import {getChartYAxisScale} from '@shared/lib/deviceLayout';
 import {
   buildXAxisTicks,
   buildYAxisTicks,
@@ -19,15 +20,18 @@ type ChartAxisOverlayProps = {
   compactGutters?: boolean;
 };
 
-const AXIS_LABEL_HEIGHT = 14;
 const AXIS_LABEL_EDGE_PADDING = 4;
 
-const clampAxisLabelTop = (y: number, chartHeight: number) =>
+const clampAxisLabelTop = (
+  y: number,
+  chartHeight: number,
+  labelHeight: number,
+) =>
   Math.max(
     AXIS_LABEL_EDGE_PADDING,
     Math.min(
-      y - AXIS_LABEL_HEIGHT / 2,
-      chartHeight - AXIS_LABEL_HEIGHT - AXIS_LABEL_EDGE_PADDING,
+      y - labelHeight / 2,
+      chartHeight - labelHeight - AXIS_LABEL_EDGE_PADDING,
     ),
   );
 
@@ -38,7 +42,13 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
   markLines,
   compactGutters = false,
 }: ChartAxisOverlayProps) {
-  const plot = getChartPlotLayout(width, height, {compactGutters});
+  const yAxisScale = getChartYAxisScale(width);
+  const plot = getChartPlotLayout(width, height, {
+    compactGutters,
+    leftYAxis: chartData.leftYAxis,
+    rightYAxis: chartData.rightYAxis,
+    yAxisFontSize: yAxisScale.fontSize,
+  });
   const leftTicks = buildYAxisTicks(chartData.leftYAxis);
   const rightTicks = chartData.rightYAxis
     ? buildYAxisTicks(chartData.rightYAxis)
@@ -68,14 +78,13 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
           <Text
             key={`left-${tick.value}`}
             numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.75}
-            className="absolute text-[10px] leading-[14px] text-[#8b949e]"
+            className="absolute text-[#8b949e]"
             style={{
               left: AXIS_LABEL_EDGE_PADDING,
-              top: clampAxisLabelTop(y, height),
+              top: clampAxisLabelTop(y, height, yAxisScale.labelHeight),
               width: plot.leftGutter - AXIS_LABEL_EDGE_PADDING * 2,
-              height: AXIS_LABEL_HEIGHT,
+              fontSize: yAxisScale.fontSize,
+              lineHeight: yAxisScale.lineHeight,
               textAlign: 'right',
             }}>
             {tick.label}
@@ -95,15 +104,14 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
           <Text
             key={`right-${tick.value}`}
             numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.75}
-            className="absolute text-[10px] leading-[14px] text-[#8b949e]"
+            className="absolute text-[#8b949e]"
             style={{
-              left: plot.left + plot.width + AXIS_LABEL_EDGE_PADDING,
-              top: clampAxisLabelTop(y, height),
+              right: AXIS_LABEL_EDGE_PADDING,
+              top: clampAxisLabelTop(y, height, yAxisScale.labelHeight),
               width: plot.rightGutter - AXIS_LABEL_EDGE_PADDING * 2,
-              height: AXIS_LABEL_HEIGHT,
-              textAlign: 'left',
+              fontSize: yAxisScale.fontSize,
+              lineHeight: yAxisScale.lineHeight,
+              textAlign: 'right',
             }}>
             {tick.label}
           </Text>
@@ -130,7 +138,7 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
               ),
               top: Math.min(
                 plot.top + plot.height + 8,
-                height - AXIS_LABEL_HEIGHT - AXIS_LABEL_EDGE_PADDING,
+                height - 14 - AXIS_LABEL_EDGE_PADDING,
               ),
               width: 64,
               textAlign: 'center',
