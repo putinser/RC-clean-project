@@ -24,9 +24,7 @@ export const getChartViewModel = ({
   });
 
   const latestValue =
-    view === 'signals'
-      ? built.latestRsi
-      : built.latestPrice ?? selectedAsset?.price?.value;
+    built.latestPrice ?? selectedAsset?.price?.value ?? undefined;
 
   return {
     chartKey: `${view}-${view === 'signals' || view === 'asset-price' ? (isFiz ? 'fiz' : 'yur') : metric}`,

@@ -74,7 +74,7 @@ export const ChartLegend = ({
             color={CHART_SIGNAL_COLORS.neutral}
             label={`Сигнал (${isFiz ? 'Физ. лица' : 'Юр. лица'})`}
             value={
-              latestSignalValue !== undefined
+              latestSignalValue != null
                 ? latestSignalValue.toLocaleString('ru-RU')
                 : '—'
             }

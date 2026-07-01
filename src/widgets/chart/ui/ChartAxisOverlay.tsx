@@ -50,6 +50,7 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
     rightYAxis: chartData.rightYAxis,
     yAxisFontSize: yAxisScale.fontSize,
   });
+  console.log('plot', plot);
   const leftAxisLabelRight = width - plot.left + AXIS_LABEL_EDGE_PADDING;
   const leftTicks = buildYAxisTicks(chartData.leftYAxis);
   const rightTicks = chartData.rightYAxis
@@ -169,8 +170,14 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
                 ),
               }}>
               <View
-                className="shrink-0 rounded px-1.5 py-0.5"
-                style={{backgroundColor: markLine.labelBackground}}>
+                className="shrink-0 px-3 py-1"
+                style={{
+                  backgroundColor: markLine.labelBackground,
+                  borderTopLeftRadius: markLine.labelBorderRadius[0],
+                  borderTopRightRadius: markLine.labelBorderRadius[1],
+                  borderBottomRightRadius: markLine.labelBorderRadius[2],
+                  borderBottomLeftRadius: markLine.labelBorderRadius[3],
+                }}>
                 <Text
                   className="text-[11px] font-bold leading-[14px]"
                   style={{color: markLine.labelTextColor}}>

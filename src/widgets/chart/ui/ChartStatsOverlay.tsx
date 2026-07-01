@@ -6,7 +6,7 @@ type ChartStatsOverlayProps = {
 };
 
 export const ChartStatsOverlay = ({stats}: ChartStatsOverlayProps) => {
-  if (stats.latestPrice === undefined) {
+  if (stats.latestPrice == null) {
     return null;
   }
 

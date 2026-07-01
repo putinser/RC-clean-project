@@ -1,5 +1,19 @@
 import type {ChartPoint, ChartTooltipEntry, ChartTooltipSeries} from './chartSkia.types';
 
+const formatTooltipDate = (targetTimestamp: number) => {
+  const date = new Date(targetTimestamp);
+  return date.toLocaleString('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+export const getTooltipLineKey = (line: ChartTooltipEntry) =>
+  `${line.variant ?? 'default'}|${line.text}|${line.color ?? ''}|${line.value ?? ''}`;
+
 export const findNearestPoint = (
   points: ChartPoint[],
   targetTimestamp: number,
@@ -37,16 +51,9 @@ export const buildChartTooltipLines = (
   targetTimestamp: number,
   tooltipSeries: ChartTooltipSeries[],
 ) => {
-  const date = new Date(targetTimestamp);
-  const formattedDate = date.toLocaleString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  const lines: ChartTooltipEntry[] = [{text: formattedDate}];
+  const lines: ChartTooltipEntry[] = [
+    {text: formatTooltipDate(targetTimestamp)},
+  ];
 
   tooltipSeries.forEach((series) => {
     const nearestPoint = findNearestPoint(series.points, targetTimestamp);
@@ -56,8 +63,36 @@ export const buildChartTooltipLines = (
 
     lines.push({
       text: `${series.name}: ${series.formatValue(nearestPoint.value)}`,
-      color: series.color,
+      color: series.getColor?.(nearestPoint.value) ?? series.color,
     });
+  });
+
+  return lines;
+};
+
+export const buildSimpleChartTooltipLines = (
+  targetTimestamp: number,
+  tooltipSeries: ChartTooltipSeries[],
+) => {
+  const lines: ChartTooltipEntry[] = [
+    {text: formatTooltipDate(targetTimestamp), variant: 'date'},
+  ];
+
+  const series = tooltipSeries[0];
+  if (!series) {
+    return lines;
+  }
+
+  const nearestPoint = findNearestPoint(series.points, targetTimestamp);
+  if (!nearestPoint) {
+    return lines;
+  }
+
+  lines.push({
+    text: series.name,
+    color: series.getColor?.(nearestPoint.value) ?? series.color,
+    value: series.formatValue(nearestPoint.value),
+    variant: 'metric',
   });
 
   return lines;

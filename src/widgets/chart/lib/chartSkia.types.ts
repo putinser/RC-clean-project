@@ -26,6 +26,8 @@ export type ChartMarkLine = {
   label?: string;
   labelPosition?: 'start' | 'end';
   labelTextColor?: string;
+  labelBackground?: string;
+  labelBorderRadius?: [number, number, number, number];
   dashed?: boolean;
 };
 
@@ -42,6 +44,7 @@ export type ChartTooltipSeries = {
   color: string;
   points: ChartPoint[];
   formatValue: (value: number) => string;
+  getColor?: (value: number) => string;
 };
 
 export type ChartSkiaData = {
@@ -52,6 +55,7 @@ export type ChartSkiaData = {
   series: ChartLineSeries[];
   markLines: ChartMarkLine[];
   tooltipSeries: ChartTooltipSeries[];
+  tooltipLayout?: 'simple' | 'multi';
 };
 
 export type ChartPlotLayout = {
@@ -78,6 +82,7 @@ export type ChartRenderedMarkLine = {
   labelY: number;
   labelBackground: string;
   labelTextColor: string;
+  labelBorderRadius: [number, number, number, number];
 };
 
 export type ChartAxisTick = {
@@ -90,6 +95,8 @@ export type ChartAxisTick = {
 export type ChartTooltipEntry = {
   text: string;
   color?: string;
+  value?: string;
+  variant?: 'date' | 'metric';
 };
 
 export type ChartTooltipState = {

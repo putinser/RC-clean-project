@@ -174,8 +174,9 @@ const buildMarkLines = (
       label: markLine.label,
       labelPosition,
       labelY: y,
-      labelBackground: markLine.color,
+      labelBackground: markLine.labelBackground ?? markLine.color,
       labelTextColor: markLine.labelTextColor ?? '#FFFFFF',
+      labelBorderRadius: markLine.labelBorderRadius ?? [4, 4, 4, 4],
     };
   });
 

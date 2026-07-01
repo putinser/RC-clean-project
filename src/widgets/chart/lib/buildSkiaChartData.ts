@@ -8,7 +8,7 @@ import type {ChartViewId} from '../config/chartView';
 import {formatChartXAxisLabel} from './chartAxisLabels';
 import {buildColoredSegments} from './buildColoredSegments';
 import {getPriceLineColors} from './chartPriceColors';
-import {CHART_SIGNAL_COLORS} from './chartSignalColors';
+import {CHART_SIGNAL_COLORS, getRsiSignalColor} from './chartSignalColors';
 import {
   getChartPriceValue,
   parseChartMoment,
@@ -33,21 +33,8 @@ import type {
 } from './chartSkia.types';
 import type {Asset} from '@services/assets/types';
 
-const getRsiColor = (
-  value: number,
-  overbought: number,
-  oversold: number,
-) => {
-  if (value > 0 && value <= oversold) {
-    return CHART_SIGNAL_COLORS.fail;
-  }
-
-  if (value >= overbought && value <= 100) {
-    return CHART_SIGNAL_COLORS.success;
-  }
-
-  return CHART_SIGNAL_COLORS.neutral;
-};
+const formatSignalThresholdLabel = (value: number) =>
+  Math.round(value).toString();
 
 const mapPoints = (
   items: Array<{moment: string; value: number}>,
@@ -73,7 +60,7 @@ const buildLatestMarkLine = (
   labelPosition: 'start' | 'end',
   labelTextColor = '#FFFFFF',
 ): ChartMarkLine | null => {
-  if (series.latestValue === undefined || series.points.length === 0) {
+  if (series.latestValue == null || series.points.length === 0) {
     return null;
   }
 
@@ -241,8 +228,10 @@ const buildSignalsChartData = ({
   selectedAsset,
   isFiz,
 }: BuildSignalsChartDataParams) => {
+  const validRsiItems = sortedRsi.filter((item) => item.value != null);
+  const latestRsi = validRsiItems.at(-1)?.value ?? undefined;
   const points = mapPoints(
-    sortedRsi.map((item) => ({moment: item.moment, value: item.value})),
+    validRsiItems.map((item) => ({moment: item.moment, value: item.value})),
   );
   const {overbought, oversold} = getAssetRsiThresholds(selectedAsset, isFiz);
   const seriesName = `Сигнал (${isFiz ? 'Физ. лица' : 'Юр. лица'})`;
@@ -253,9 +242,9 @@ const buildSignalsChartData = ({
     color: CHART_SIGNAL_COLORS.neutral,
     points,
     yAxis: 'left',
-    latestValue: sortedRsi.at(-1)?.value,
+    latestValue: latestRsi,
     coloredSegments: buildColoredSegments(points, (point) =>
-      getRsiColor(point.value, overbought, oversold),
+      getRsiSignalColor(point.value, overbought, oversold),
     ),
   };
 
@@ -273,15 +262,26 @@ const buildSignalsChartData = ({
           y: oversold,
           yAxis: 'left',
           color: CHART_SIGNAL_COLORS.fail,
+          labelBackground: CHART_SIGNAL_COLORS.fail,
+          label: formatSignalThresholdLabel(oversold),
+          labelPosition: 'start',
+          labelTextColor: '#FFFFFF',
+          labelBorderRadius: [0, 8, 8, 0],
           dashed: true,
         },
         {
           y: overbought,
           yAxis: 'left',
           color: CHART_SIGNAL_COLORS.success,
+          labelBackground: CHART_SIGNAL_COLORS.success,
+          label: formatSignalThresholdLabel(overbought),
+          labelPosition: 'start',
+          labelTextColor: '#FFFFFF',
+          labelBorderRadius: [0, 8, 8, 0],
           dashed: true,
         },
       ],
+      tooltipLayout: 'simple',
       tooltipSeries: [
         {
           id: 'rsi',
@@ -292,13 +292,14 @@ const buildSignalsChartData = ({
             value.toLocaleString('ru-RU', {
               maximumFractionDigits: Number.isInteger(value) ? 0 : 2,
             }),
+          getColor: (value) => getRsiSignalColor(value, overbought, oversold),
         },
       ],
     } satisfies ChartSkiaData,
     legalSeries: [] as ChartLegalSeriesItem[],
     priceColor: '#8085FF',
     latestPrice: undefined,
-    latestRsi: sortedRsi.at(-1)?.value,
+    latestRsi,
     signalThresholds: {overbought, oversold},
   };
 };
@@ -330,7 +331,7 @@ const buildAssetPriceChartData = ({
     yAxis: 'left',
     latestValue: latestPrice,
     coloredSegments: buildColoredSegments(pricePoints, (_point, index) =>
-      getRsiColor(rsiPoints[index] ?? 0, overbought, oversold),
+      getRsiSignalColor(rsiPoints[index] ?? 0, overbought, oversold),
     ),
   };
 

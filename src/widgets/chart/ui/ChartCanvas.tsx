@@ -10,7 +10,11 @@ import {Text, View} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {Spinner} from 'heroui-native/spinner';
-import {buildChartTooltipLines} from '../lib/buildChartTooltip';
+import {
+  buildChartTooltipLines,
+  buildSimpleChartTooltipLines,
+  getTooltipLineKey,
+} from '../lib/buildChartTooltip';
 import {getChartYAxisScale} from '@shared/lib/deviceLayout';
 import {buildSkiaChartPaths} from '../lib/buildSkiaPaths';
 import {xToTimestamp} from '../lib/chartLayout';
@@ -103,20 +107,19 @@ export const ChartCanvas = ({
       data.xRange.max,
       plot,
     );
-    const lines = buildChartTooltipLines(timestamp, data.tooltipSeries);
+    const lines =
+      data.tooltipLayout === 'simple'
+        ? buildSimpleChartTooltipLines(timestamp, data.tooltipSeries)
+        : buildChartTooltipLines(timestamp, data.tooltipSeries);
 
     setTooltip((previous) => {
-      const linesKey = lines
-        .map((line) => `${line.text}|${line.color ?? ''}`)
-        .join('||');
+      const linesKey = lines.map(getTooltipLineKey).join('||');
 
       if (
         previous &&
         previous.x === x &&
         previous.y === y &&
-        previous.lines
-          .map((line) => `${line.text}|${line.color ?? ''}`)
-          .join('||') === linesKey
+        previous.lines.map(getTooltipLineKey).join('||') === linesKey
       ) {
         return previous;
       }
@@ -226,8 +229,37 @@ export const ChartCanvas = ({
                   top: Math.max(tooltip.y - TOOLTIP_OFFSET_Y, 8),
                   maxWidth: TOOLTIP_WIDTH,
                 }}>
-                {tooltip.lines.map((line, index) =>
-                  line.color ? (
+                {tooltip.lines.map((line, index) => {
+                  if (line.variant === 'date') {
+                    return (
+                      <Text
+                        key={`${line.text}-${index}`}
+                        className="text-[13px] text-[#8b949e]">
+                        {line.text}
+                      </Text>
+                    );
+                  }
+
+                  if (line.variant === 'metric') {
+                    return (
+                      <View
+                        key={`${line.text}-${index}`}
+                        className="mt-2 flex-row items-center justify-between gap-4">
+                        <View className="flex-row items-center gap-1.5">
+                          <View
+                            className="h-2 w-2 shrink-0 rounded-full"
+                            style={{backgroundColor: line.color ?? '#8085FF'}}
+                          />
+                          <Text className="text-sm text-white">{line.text}</Text>
+                        </View>
+                        <Text className="text-sm font-bold text-white">
+                          {line.value}
+                        </Text>
+                      </View>
+                    );
+                  }
+
+                  return line.color ? (
                     <View
                       key={`${line.text}-${index}`}
                       className={`flex-row items-center gap-2 ${index > 0 ? 'mt-1' : ''}`}>
@@ -243,8 +275,8 @@ export const ChartCanvas = ({
                       className={`text-xs text-white ${index > 0 ? 'mt-1' : ''}`}>
                       {line.text}
                     </Text>
-                  ),
-                )}
+                  );
+                })}
               </View>
             </>
           ) : null}

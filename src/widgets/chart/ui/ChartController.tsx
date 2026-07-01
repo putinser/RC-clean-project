@@ -161,7 +161,7 @@ export const ChartController = () => {
             </View>
           </View>
 
-          <View className="flex-row gap-2">
+          <View key={view} className="flex-row gap-2">
             {metricOptions ? (
               <View className="min-w-0 flex-1">
                 <MetricSelect
@@ -171,7 +171,7 @@ export const ChartController = () => {
                 />
               </View>
             ) : null}
-            <View className={metricOptions ? 'min-w-0 flex-1' : 'w-full'}>
+            <View className="min-w-0 flex-1">
               <ChartSelect
                 options={entityTypeOptions}
                 value={isFiz ? 'true' : 'false'}
