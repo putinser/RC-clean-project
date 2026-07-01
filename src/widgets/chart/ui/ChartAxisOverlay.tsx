@@ -21,6 +21,7 @@ type ChartAxisOverlayProps = {
 };
 
 const AXIS_LABEL_EDGE_PADDING = 2;
+const AXIS_LABEL_PLOT_GAP = 0;
 const MARK_LINE_LABEL_HEIGHT = 18;
 
 const clampAxisLabelTop = (
@@ -36,7 +37,7 @@ const clampAxisLabelTop = (
     ),
   );
 
-export const ChartAxisOverlay = memo(function ChartAxisOverlay({
+export const ChartAxisOverlay = memo(function ChartAxisOverlayComponent({
   chartData,
   width,
   height,
@@ -50,8 +51,12 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
     rightYAxis: chartData.rightYAxis,
     yAxisFontSize: yAxisScale.fontSize,
   });
-  console.log('plot', plot);
-  const leftAxisLabelRight = width - plot.left + AXIS_LABEL_EDGE_PADDING;
+  const leftAxisLabelWidth = Math.max(plot.left - AXIS_LABEL_PLOT_GAP, 0);
+  const rightAxisLabelLeft = plot.left + plot.width + AXIS_LABEL_PLOT_GAP;
+  const rightAxisLabelWidth = Math.max(
+    width - rightAxisLabelLeft,
+    0,
+  );
   const leftTicks = buildYAxisTicks(chartData.leftYAxis);
   const rightTicks = chartData.rightYAxis
     ? buildYAxisTicks(chartData.rightYAxis)
@@ -81,10 +86,10 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
           <Text
             key={`left-${tick.value}`}
             numberOfLines={1}
-            className="absolute text-[#8b949e]"
+            className="absolute left-0 text-left text-[#8b949e]"
             style={{
-              right: leftAxisLabelRight,
               top: clampAxisLabelTop(y, height, yAxisScale.labelHeight),
+              width: leftAxisLabelWidth,
               fontSize: yAxisScale.fontSize,
               lineHeight: yAxisScale.lineHeight,
             }}>
@@ -105,14 +110,13 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
           <Text
             key={`right-${tick.value}`}
             numberOfLines={1}
-            className="absolute text-[#8b949e]"
+            className="absolute text-right text-[#8b949e]"
             style={{
-              left: plot.left + plot.width + AXIS_LABEL_EDGE_PADDING,
+              left: rightAxisLabelLeft,
               top: clampAxisLabelTop(y, height, yAxisScale.labelHeight),
-              width: plot.rightGutter - AXIS_LABEL_EDGE_PADDING * 2,
+              width: rightAxisLabelWidth,
               fontSize: yAxisScale.fontSize,
               lineHeight: yAxisScale.lineHeight,
-              textAlign: 'left',
             }}>
             {tick.label}
           </Text>
@@ -131,7 +135,7 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
           <Text
             key={`x-${tick.value}`}
             numberOfLines={1}
-            className="absolute text-[10px] leading-[14px] text-[#8b949e]"
+            className="absolute w-16 text-center text-[10px] leading-[14px] text-[#8b949e]"
             style={{
               left: Math.max(
                 AXIS_LABEL_EDGE_PADDING,
@@ -141,8 +145,6 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
                 plot.top + plot.height + 8,
                 height - 14 - AXIS_LABEL_EDGE_PADDING,
               ),
-              width: 64,
-              textAlign: 'center',
             }}>
             {tick.label}
           </Text>
@@ -157,12 +159,12 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
           return (
             <View
               key={`${markLine.label}-${markLine.labelPosition}-${markLine.labelY}`}
-              className="absolute"
+              className={`absolute ${isRight ? 'items-end' : 'left-0'}`}
               style={{
-                left: isRight
-                  ? plot.left + plot.width + AXIS_LABEL_EDGE_PADDING
-                  : undefined,
-                right: isRight ? undefined : leftAxisLabelRight,
+                left: isRight ? rightAxisLabelLeft : undefined,
+                maxWidth: isRight
+                  ? rightAxisLabelWidth
+                  : leftAxisLabelWidth,
                 top: clampAxisLabelTop(
                   markLine.labelY,
                   height,
@@ -170,7 +172,7 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
                 ),
               }}>
               <View
-                className="shrink-0 px-3 py-1"
+                className={`absolute shrink-0 px-1.5 py-1 ${isRight ? '-right-10' : 'left-0'}`}
                 style={{
                   backgroundColor: markLine.labelBackground,
                   borderTopLeftRadius: markLine.labelBorderRadius[0],
@@ -179,7 +181,7 @@ export const ChartAxisOverlay = memo(function ChartAxisOverlay({
                   borderBottomLeftRadius: markLine.labelBorderRadius[3],
                 }}>
                 <Text
-                  className="text-[11px] font-bold leading-[14px]"
+                  className="text-[10px] font-bold leading-[14px]"
                   style={{color: markLine.labelTextColor}}>
                   {markLine.label}
                 </Text>

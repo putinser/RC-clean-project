@@ -1,7 +1,7 @@
 import type {ChartPlotLayout, ChartYAxisConfig} from './chartSkia.types';
 
 const AXIS_GUTTER_PADDING = 4;
-const MIN_GUTTER = 34;
+const MIN_GUTTER = 24;
 const MAX_GUTTER_RATIO = 0.3;
 const LANDSCAPE_TOP_INSET = 42;
 const LANDSCAPE_BOTTOM_INSET = 28;
