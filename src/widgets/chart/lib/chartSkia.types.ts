@@ -74,7 +74,7 @@ export type ChartRenderedMarkLine = {
   color: string;
   dashed: boolean;
   label?: string;
-  labelX: number;
+  labelPosition: 'start' | 'end';
   labelY: number;
   labelBackground: string;
   labelTextColor: string;

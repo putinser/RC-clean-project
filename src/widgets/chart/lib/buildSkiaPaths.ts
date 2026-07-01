@@ -172,10 +172,7 @@ const buildMarkLines = (
       color: markLine.color,
       dashed: markLine.dashed ?? true,
       label: markLine.label,
-      labelX:
-        labelPosition === 'end'
-          ? plot.left + plot.width - 6
-          : plot.left + plot.leftGutter / 2,
+      labelPosition,
       labelY: y,
       labelBackground: markLine.color,
       labelTextColor: markLine.labelTextColor ?? '#FFFFFF',

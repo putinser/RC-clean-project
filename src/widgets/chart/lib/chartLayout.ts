@@ -1,14 +1,12 @@
 import type {ChartPlotLayout, ChartYAxisConfig} from './chartSkia.types';
 
-const AXIS_GUTTER_PADDING = 8;
+const AXIS_GUTTER_PADDING = 4;
 const MIN_GUTTER = 24;
 const MAX_GUTTER_RATIO = 0.3;
 const LANDSCAPE_TOP_INSET = 42;
 const LANDSCAPE_BOTTOM_INSET = 28;
 const GRID_TOP_RATIO = 0.12;
 const GRID_BOTTOM_RATIO = 0.1;
-const WIDE_LAYOUT_MIN_WIDTH = 600;
-
 type ChartPlotLayoutOptions = {
   compactGutters?: boolean;
   leftYAxis?: ChartYAxisConfig;
@@ -16,29 +14,35 @@ type ChartPlotLayoutOptions = {
   yAxisFontSize?: number;
 };
 
-const estimateLabelWidth = (
-  label: string,
-  fontSize: number,
-  chartWidth: number,
-) => {
+const estimateLabelWidth = (label: string, fontSize: number) => {
   let width = 0;
 
   for (const char of label) {
-    const isDigit = char >= '0' && char <= '9';
-    width += (isDigit ? 0.4 : 0.8) * fontSize;
+    if (char >= '0' && char <= '9') {
+      width += 0.55 * fontSize;
+      continue;
+    }
+
+    if (char === '-' || char === '+') {
+      width += 0.35 * fontSize;
+      continue;
+    }
+
+    if (char === ' ' || char === '\u00a0' || char === '\u202f') {
+      width += 0.25 * fontSize;
+      continue;
+    }
+
+    width += 0.55 * fontSize;
   }
 
-  const safetyMultiplier =
-    chartWidth >= WIDE_LAYOUT_MIN_WIDTH ? 1.2 : 1;
-
-  return Math.ceil(width * safetyMultiplier);
+  return Math.ceil(width);
 };
 
 const measureYAxisGutter = (
   axis: ChartYAxisConfig,
   fontSize: number,
   maxGutter: number,
-  chartWidth: number,
 ) => {
   const ticks = buildYAxisTicks(axis);
   let maxLabelWidth = 0;
@@ -46,7 +50,7 @@ const measureYAxisGutter = (
   for (const tick of ticks) {
     maxLabelWidth = Math.max(
       maxLabelWidth,
-      estimateLabelWidth(tick.label, fontSize, chartWidth),
+      estimateLabelWidth(tick.label, fontSize),
     );
   }
 
@@ -66,10 +70,10 @@ export const getChartPlotLayout = (
   const maxGutter = Math.max(MIN_GUTTER, Math.round(width * MAX_GUTTER_RATIO));
 
   const leftGutter = options?.leftYAxis
-    ? measureYAxisGutter(options.leftYAxis, fontSize, maxGutter, width)
+    ? measureYAxisGutter(options.leftYAxis, fontSize, maxGutter)
     : MIN_GUTTER;
   const rightGutter = options?.rightYAxis
-    ? measureYAxisGutter(options.rightYAxis, fontSize, maxGutter, width)
+    ? measureYAxisGutter(options.rightYAxis, fontSize, maxGutter)
     : MIN_GUTTER;
 
   const top = compactGutters ? LANDSCAPE_TOP_INSET : height * GRID_TOP_RATIO;
