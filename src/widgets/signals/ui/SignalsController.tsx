@@ -15,6 +15,8 @@ import { SignalsTable } from './SignalsTable';
 
 export const SignalsController = ({
   selectedAssetId,
+  selectedIsin,
+  selectedSignalType,
   onClearSelectedAsset,
 }: SignalsControllerProps) => {
   const {
@@ -28,7 +30,12 @@ export const SignalsController = ({
     filteredUnavailableAssets,
     handleAssetTypeChange,
     handleReset,
-  } = useSignals({ selectedAssetId, onClearSelectedAsset });
+  } = useSignals({
+    selectedAssetId,
+    selectedIsin,
+    selectedSignalType,
+    onClearSelectedAsset,
+  });
 
   const isAuthorized = useUserStore(state => state.isAuthorized);
   const { navigateWithAuth } = useAuthNavigation();
@@ -42,9 +49,11 @@ export const SignalsController = ({
   };
 
   const selectedAsset =
-    selectedAssetId != null
+    selectedAssetId != null || selectedIsin
       ? [...assets.available, ...assets.unavailable].find(
-          asset => asset.id === selectedAssetId,
+          asset =>
+            (selectedAssetId != null && asset.id === selectedAssetId) ||
+            (selectedIsin != null && asset.isin === selectedIsin),
         )
       : null;
 

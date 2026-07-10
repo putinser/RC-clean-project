@@ -154,13 +154,21 @@ const buildPositionChartData = ({
     });
   });
 
-  const priceValues = sortedPrice.map((item) => getChartPriceValue(item.value));
-  const pricePoints = sortedPrice.map((item) => ({
-    timestamp: parseChartMoment(item.moment),
-    value: getChartPriceValue(item.value),
-  }));
-  const latestPrice =
-    priceValues.at(-1) ?? undefined;
+  const pricePoints = sortedPrice.flatMap((item) => {
+    const value = getChartPriceValue(item.value);
+    if (value == null) {
+      return [];
+    }
+
+    return [
+      {
+        timestamp: parseChartMoment(item.moment),
+        value,
+      },
+    ];
+  });
+  const priceValues = pricePoints.map((item) => item.value);
+  const latestPrice = priceValues.at(-1) ?? undefined;
   const priceSeries: ChartLineSeries = {
     id: 'price',
     name: 'Price',
@@ -313,10 +321,17 @@ const buildAssetPriceChartData = ({
   sortedPriceReport,
   selectedAsset,
 }: BuildAssetPriceChartDataParams) => {
+  const priceReportPoints = sortedPriceReport.flatMap((item) => {
+    if (item.value == null || !Number.isFinite(item.value)) {
+      return [];
+    }
+
+    return [{moment: item.moment, value: item.value, rsi: item.rsi}];
+  });
   const pricePoints = mapPoints(
-    sortedPriceReport.map((item) => ({moment: item.moment, value: item.value})),
+    priceReportPoints.map((item) => ({moment: item.moment, value: item.value})),
   );
-  const rsiPoints = sortedPriceReport.map((item) => item.rsi);
+  const rsiPoints = priceReportPoints.map((item) => item.rsi);
   const {overbought, oversold} = getAssetRsiThresholds(selectedAsset, false);
   const latestPrice =
     pricePoints.at(-1)?.value ?? selectedAsset?.price?.value ?? undefined;

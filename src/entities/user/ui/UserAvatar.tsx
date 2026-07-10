@@ -2,6 +2,9 @@ import {useState, useRef} from 'react';
 import {Pressable, View, Text} from 'react-native';
 import {User, LogOut} from 'lucide-react-native';
 import {cn} from '@shared/lib/cn';
+import {storage} from '@shared/lib/storage';
+import {STORAGE_KEYS} from '@shared/lib/storageKeys';
+import {serviceDeviceTokens} from '@services/device-tokens';
 import {useUserStore} from '../model/useUserStore';
 import {AuthPopupState} from '@widgets/auth-popup/model/authPopupState';
 import {useAuthNavigation} from '@widgets/auth-popup/model/useAuthNavigation';
@@ -24,7 +27,11 @@ export const UserAvatar = () => {
     setMenuOpen((open) => !open);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const token = await storage.getItem<string>(STORAGE_KEYS.FCM_TOKEN);
+    if (token) {
+      await serviceDeviceTokens.unregister({token}).catch(() => undefined);
+    }
     logout();
     setMenuOpen(false);
   };

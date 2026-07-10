@@ -66,7 +66,7 @@ export interface RsiReportItem {
 
 export interface PriceReportItem {
   moment: string;
-  value: number;
+  value: number | null;
   rsi: number;
 }
 

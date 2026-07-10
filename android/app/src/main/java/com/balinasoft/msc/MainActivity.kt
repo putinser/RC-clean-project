@@ -1,4 +1,4 @@
-package com.rc2app
+package com.balinasoft.msc
 
 import android.os.Bundle
 import com.facebook.react.ReactActivity

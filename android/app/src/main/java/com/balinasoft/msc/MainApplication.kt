@@ -1,4 +1,4 @@
-package com.rc2app
+package com.balinasoft.msc
 
 import android.app.Application
 import com.facebook.react.PackageList

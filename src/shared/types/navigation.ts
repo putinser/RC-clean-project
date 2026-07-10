@@ -22,7 +22,17 @@ export type AppStackParamList = {
 export type MainTabParamList = {
   Home: undefined;
   Chart: { type?: string; assetId?: number } | undefined;
-  Signals: { selectedAssetId?: number } | undefined;
+  Signals:
+    | {
+        selectedAssetId?: number;
+        selectedIsin?: string;
+        selectedSignalType?:
+          | 'legal-overbought'
+          | 'legal-oversold'
+          | 'individual-overbought'
+          | 'individual-oversold';
+      }
+    | undefined;
   Assets: { selectedAssetId?: number } | undefined;
   Screener:
     | { selectedAssetId?: number; selectedAssetName?: string }

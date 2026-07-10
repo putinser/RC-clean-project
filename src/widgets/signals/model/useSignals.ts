@@ -11,15 +11,23 @@ import type { SignalsAssetTypeId, SignalsState, SignalTypeId } from './types';
 
 interface UseSignalsParams {
   selectedAssetId?: number | null;
+  selectedIsin?: string | null;
+  selectedSignalType?: SignalTypeId | null;
   onClearSelectedAsset?: () => void;
 }
 
 export const useSignals = ({
   selectedAssetId,
+  selectedIsin,
+  selectedSignalType,
   onClearSelectedAsset,
 }: UseSignalsParams) => {
   const [assetType, setAssetType] = useState<SignalsAssetTypeId>('all');
-  const [signalType, setSignalType] = useState<SignalTypeId>('all');
+  const [signalType, setSignalType] = useState<SignalTypeId>(
+    selectedSignalType && selectedSignalType !== 'all'
+      ? selectedSignalType
+      : 'all',
+  );
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const favorites = useFavoritesStore(state => state.favorites);
   const fetchFavorites = useFavoritesStore(state => state.fetchFavorites);
@@ -29,6 +37,12 @@ export const useSignals = ({
     unavailable: [],
     isLoading: true,
   });
+
+  useEffect(() => {
+    if (selectedSignalType && selectedSignalType !== 'all') {
+      setSignalType(selectedSignalType);
+    }
+  }, [selectedSignalType]);
 
   useEffect(() => {
     if (isAuthorized) {
@@ -85,8 +99,19 @@ export const useSignals = ({
       return signalAssets.filter(asset => asset.id === selectedAssetId);
     }
 
+    if (selectedIsin) {
+      return signalAssets.filter(asset => asset.isin === selectedIsin);
+    }
+
     return signalAssets;
-  }, [assets.available, selectedAssetId, signalType, onlyFavorites, favorites]);
+  }, [
+    assets.available,
+    selectedAssetId,
+    selectedIsin,
+    signalType,
+    onlyFavorites,
+    favorites,
+  ]);
 
   const filteredUnavailableAssets = useMemo(() => {
     let unavailableAssets = assets.unavailable;
@@ -101,8 +126,18 @@ export const useSignals = ({
       return unavailableAssets.filter(asset => asset.id === selectedAssetId);
     }
 
+    if (selectedIsin) {
+      return unavailableAssets.filter(asset => asset.isin === selectedIsin);
+    }
+
     return unavailableAssets;
-  }, [assets.unavailable, selectedAssetId, onlyFavorites, favorites]);
+  }, [
+    assets.unavailable,
+    selectedAssetId,
+    selectedIsin,
+    onlyFavorites,
+    favorites,
+  ]);
 
   const handleAssetTypeChange = (value: string) => {
     onClearSelectedAsset?.();

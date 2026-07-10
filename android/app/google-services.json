@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "331000476609",
+    "project_id": "msc-balinasoft",
+    "storage_bucket": "msc-balinasoft.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331000476609:android:ff3c679309e0ce42fc7540",
+        "android_client_info": {
+          "package_name": "com.balinasoft.msc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4h2N3b9ijEMG5wN8NZ73qNDgwwZdHLvg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

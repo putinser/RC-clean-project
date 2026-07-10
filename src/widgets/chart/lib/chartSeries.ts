@@ -9,8 +9,25 @@ export const sortChartItemsByMoment = <T extends {moment: string}>(items: T[]) =
       parseChartMoment(left.moment) - parseChartMoment(right.moment),
   );
 
-export const getChartPriceValue = (value: AssetValue | number) =>
-  typeof value === 'number' ? value : value.open;
+export const getChartPriceValue = (
+  value: AssetValue | number | null | undefined,
+): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (
+    value &&
+    typeof value === 'object' &&
+    typeof value.open === 'number' &&
+    Number.isFinite(value.open)
+  ) {
+    return value.open;
+  }
+
+  return null;
+};
+
 
 export const toChartTimePoint = (moment: string, value: number) =>
   [parseChartMoment(moment), value] as [number, number];

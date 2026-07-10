@@ -17,5 +17,7 @@ export type SignalsState = {
 
 export interface SignalsControllerProps {
   selectedAssetId?: number | null;
+  selectedIsin?: string | null;
+  selectedSignalType?: SignalTypeId | null;
   onClearSelectedAsset?: () => void;
 }

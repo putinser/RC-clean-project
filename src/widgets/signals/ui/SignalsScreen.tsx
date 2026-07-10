@@ -14,15 +14,23 @@ export const SignalsScreen = () => {
   const route = useRoute<RouteProp<MainTabParamList, 'Signals'>>();
   const navigation = useNavigation<MainTabNavigation>();
   const selectedAssetId = route.params?.selectedAssetId ?? null;
+  const selectedIsin = route.params?.selectedIsin ?? null;
+  const selectedSignalType = route.params?.selectedSignalType ?? null;
 
   const handleClearSelectedAsset = () => {
-    navigation.setParams({selectedAssetId: undefined});
+    navigation.setParams({
+      selectedAssetId: undefined,
+      selectedIsin: undefined,
+      selectedSignalType: undefined,
+    });
   };
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <SignalsController
         selectedAssetId={selectedAssetId}
+        selectedIsin={selectedIsin}
+        selectedSignalType={selectedSignalType}
         onClearSelectedAsset={handleClearSelectedAsset}
       />
     </SafeAreaView>

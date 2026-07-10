@@ -6,8 +6,10 @@ import {HeroUINativeProvider} from 'heroui-native/provider';
 import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {AuthSessionInit} from '@features/auth-session';
 import {ChartPrefetchInit} from '@features/chart-prefetch';
+import {PushNotificationsInit} from '@features/push-notifications';
 import {useUserStore} from '@entities/user';
 import {SplashScreen} from '@widgets/splash';
+import {navigationRef} from '@shared/lib/navigationRef';
 import {RootNavigator} from './navigation';
 
 const navTheme = {
@@ -43,7 +45,8 @@ export const Providers = () => {
           <AuthSessionInit />
           <ChartPrefetchInit />
           {ready ? (
-            <NavigationContainer theme={navTheme}>
+            <NavigationContainer ref={navigationRef} theme={navTheme}>
+              <PushNotificationsInit />
               <RootNavigator />
             </NavigationContainer>
           ) : (

@@ -3,4 +3,5 @@ export const STORAGE_KEYS = {
   AUTHORIZED: '@AUTHORIZED',
   TOKENS: '@TOKENS',
   FAVORITES: '@FAVORITES',
+  FCM_TOKEN: '@FCM_TOKEN',
 } as const;
