@@ -5,6 +5,7 @@ import {StatusBar} from 'react-native';
 import {HeroUINativeProvider} from 'heroui-native/provider';
 import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {AuthSessionInit} from '@features/auth-session';
+import {ChartPrefetchInit} from '@features/chart-prefetch';
 import {useUserStore} from '@entities/user';
 import {SplashScreen} from '@widgets/splash';
 import {RootNavigator} from './navigation';
@@ -40,6 +41,7 @@ export const Providers = () => {
         <HeroUINativeProvider>
           <StatusBar barStyle="light-content" backgroundColor="#060b12" />
           <AuthSessionInit />
+          <ChartPrefetchInit />
           {ready ? (
             <NavigationContainer theme={navTheme}>
               <RootNavigator />
