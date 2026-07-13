@@ -17,6 +17,7 @@ export type ChartLineSeries = {
   step?: 'end';
   latestValue?: number;
   coloredSegments?: ChartColoredSegment[];
+  areaFill?: boolean;
 };
 
 export type ChartMarkLine = {
@@ -71,6 +72,13 @@ export type ChartRenderedPath = {
   path: ReturnType<typeof import('@shopify/react-native-skia').Skia.Path.Make>;
   color: string;
   strokeWidth: number;
+};
+
+export type ChartRenderedAreaPath = {
+  path: ReturnType<typeof import('@shopify/react-native-skia').Skia.Path.Make>;
+  color: string;
+  top: number;
+  bottom: number;
 };
 
 export type ChartRenderedMarkLine = {

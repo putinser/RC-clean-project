@@ -2,7 +2,9 @@ import {memo} from 'react';
 import {
   Canvas,
   DashPathEffect,
+  LinearGradient,
   Path,
+  vec,
 } from '@shopify/react-native-skia';
 import type {buildSkiaChartPaths} from '../lib/buildSkiaPaths';
 
@@ -31,6 +33,16 @@ export const ChartStaticLayer = memo(function ChartStaticLayer({
           style="stroke"
           strokeWidth={item.strokeWidth}
         />
+      ))}
+
+      {rendered.areaPaths.map((item, index) => (
+        <Path key={`area-${index}`} path={item.path} style="fill">
+          <LinearGradient
+            start={vec(0, item.top)}
+            end={vec(0, item.bottom)}
+            colors={[item.color, 'transparent']}
+          />
+        </Path>
       ))}
 
       {rendered.seriesPaths.map((item, index) => (

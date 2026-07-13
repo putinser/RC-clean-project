@@ -13,6 +13,7 @@ import type {
   ChartMarkLine,
   ChartPlotLayout,
   ChartPoint,
+  ChartRenderedAreaPath,
   ChartRenderedMarkLine,
   ChartRenderedPath,
   ChartSkiaData,
@@ -111,6 +112,28 @@ const buildSeriesPath = (
   return path;
 };
 
+const buildSeriesAreaPath = (
+  points: ChartPoint[],
+  scale: PathScale,
+  step?: 'end',
+) => {
+  const path = buildSeriesPath(points, scale, step);
+
+  if (points.length === 0) {
+    return path;
+  }
+
+  const first = pointToXY(points[0], scale);
+  const last = pointToXY(points[points.length - 1], scale);
+  const baseline = scale.plotTop + scale.plotHeight;
+
+  path.lineTo(last.x, baseline);
+  path.lineTo(first.x, baseline);
+  path.close();
+
+  return path;
+};
+
 const buildGridPaths = (
   chartData: ChartSkiaData,
   plot: ChartPlotLayout,
@@ -195,6 +218,7 @@ export const buildSkiaChartPaths = (
   const maxRenderPoints = getMaxRenderPoints(plot.width);
   const {min: xMin, max: xMax} = chartData.xRange;
   const seriesPaths: ChartRenderedPath[] = [];
+  const areaPaths: ChartRenderedAreaPath[] = [];
 
   chartData.series.forEach((series: ChartLineSeries) => {
     const yAxis =
@@ -209,6 +233,20 @@ export const buildSkiaChartPaths = (
       2,
       Math.floor(maxRenderPoints / Math.max(segments.length, 1)),
     );
+
+    if (series.areaFill && series.points.length > 0) {
+      const renderPoints = prepareRenderPoints(
+        series.points,
+        maxRenderPoints,
+        series.step,
+      );
+      areaPaths.push({
+        path: buildSeriesAreaPath(renderPoints, scale, series.step),
+        color: series.color,
+        top: plot.top,
+        bottom: plot.top + plot.height,
+      });
+    }
 
     segments.forEach((segment) => {
       if (segment.points.length === 0) {
@@ -254,6 +292,7 @@ export const buildSkiaChartPaths = (
   return {
     plot,
     gridPaths: buildGridPaths(chartData, plot),
+    areaPaths,
     seriesPaths,
     markLinePaths,
     markLines,

@@ -19,6 +19,7 @@ type ChartLegendProps = {
   };
   metric: ChartMetricId;
   isFiz: boolean;
+  showPrice?: boolean;
   variant?: 'default' | 'compact';
 };
 
@@ -53,6 +54,7 @@ export const ChartLegend = ({
   signalThresholds,
   metric,
   isFiz,
+  showPrice = true,
   variant = 'default',
 }: ChartLegendProps) => {
   const isCompact = variant === 'compact';
@@ -153,17 +155,19 @@ export const ChartLegend = ({
             </Text>
           </View>
         ))}
-        <View className="flex-row items-center gap-2">
-          <View className="h-0.5 w-4" style={{backgroundColor: priceColor}} />
-          <Text className="text-xs text-[#8b949e]">
-            Фьючерс:{' '}
-            <Text className="font-semibold text-white">
-              {latestPrice !== undefined
-                ? latestPrice.toLocaleString('ru-RU')
-                : '—'}
+        {showPrice ? (
+          <View className="flex-row items-center gap-2">
+            <View className="h-0.5 w-4" style={{backgroundColor: priceColor}} />
+            <Text className="text-xs text-[#8b949e]">
+              Фьючерс:{' '}
+              <Text className="font-semibold text-white">
+                {latestPrice !== undefined
+                  ? latestPrice.toLocaleString('ru-RU')
+                  : '—'}
+              </Text>
             </Text>
-          </Text>
-        </View>
+          </View>
+        ) : null}
       </View>
       {!isCompact ? (
         <Text className={footerClassName}>Обновление: каждые 5 мин</Text>

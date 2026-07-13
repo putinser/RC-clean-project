@@ -11,7 +11,7 @@ import type {ChartSkiaData} from '../lib/chartSkia.types';
 import type {ChartAssetStats, ChartLegalSeriesItem} from '../lib/chartView.types';
 import {ChartCanvas} from './ChartCanvas';
 import {ChartLegend} from './ChartLegend';
-import {ChartStatsOverlay} from './ChartStatsOverlay';
+import {ChartPriceOverlay} from './ChartPriceOverlay';
 
 type ChartLandscapeModalProps = {
   visible: boolean;
@@ -30,6 +30,7 @@ type ChartLandscapeModalProps = {
   };
   metric: ChartMetricId;
   isFiz: boolean;
+  showPrice?: boolean;
 };
 
 export const ChartLandscapeModal = ({
@@ -46,6 +47,7 @@ export const ChartLandscapeModal = ({
   signalThresholds,
   metric,
   isFiz,
+  showPrice = true,
 }: ChartLandscapeModalProps) => {
   useChartLandscapeMode(visible);
   const insets = useSafeAreaInsets();
@@ -105,7 +107,7 @@ export const ChartLandscapeModal = ({
                 compactGutters
                 overlay={
                   <View className="absolute left-2 top-2 z-10">
-                    <ChartStatsOverlay stats={assetStats} />
+                    <ChartPriceOverlay stats={assetStats} />
                   </View>
                 }
               />
@@ -129,6 +131,7 @@ export const ChartLandscapeModal = ({
             signalThresholds={signalThresholds}
             metric={metric}
             isFiz={isFiz}
+            showPrice={showPrice}
             variant="compact"
           />
         </View>

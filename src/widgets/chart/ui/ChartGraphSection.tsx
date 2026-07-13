@@ -11,7 +11,8 @@ import {useChartData} from '../model/useChartData';
 import {ChartCanvas} from './ChartCanvas';
 import {ChartLandscapeModal} from './ChartLandscapeModal';
 import {ChartLegend} from './ChartLegend';
-import {ChartStatsOverlay} from './ChartStatsOverlay';
+import {ChartPriceOverlay} from './ChartPriceOverlay';
+import {ChartShowPriceButton} from './ChartShowPriceButton';
 
 type ChartGraphSectionProps = {
   view: ChartViewId;
@@ -21,8 +22,13 @@ type ChartGraphSectionProps = {
   period: ChartPeriodId;
   selectedAsset?: Asset;
   resolvedSelectedAssetId: string | null;
-  chartWidth: number;
-  chartHeight: number;
+  chartWidth?: number;
+  chartHeight?: number;
+  showPrice?: boolean;
+  onTogglePrice?: () => void;
+  dense?: boolean;
+  hideLegend?: boolean;
+  fill?: boolean;
 };
 
 export const ChartGraphSection = ({
@@ -33,10 +39,18 @@ export const ChartGraphSection = ({
   period,
   selectedAsset,
   resolvedSelectedAssetId,
-  chartWidth,
-  chartHeight,
+  chartWidth = 0,
+  chartHeight = 0,
+  showPrice = true,
+  onTogglePrice,
+  dense = false,
+  hideLegend = false,
+  fill = false,
 }: ChartGraphSectionProps) => {
   const [isLandscapeMode, setIsLandscapeMode] = useState(false);
+
+  const canTogglePrice =
+    (view === 'buy-sell' || view === 'buyers-sellers') && !!onTogglePrice;
 
   const {
     assetsLegal,
@@ -57,6 +71,7 @@ export const ChartGraphSection = ({
         view,
         metric,
         isFiz,
+        showPrice,
       }),
     [
       assetsLegal,
@@ -67,64 +82,96 @@ export const ChartGraphSection = ({
       view,
       metric,
       isFiz,
+      showPrice,
     ],
   );
 
   const showSpinner = isLoadingAssets && !chartViewModel.hasChartData;
 
+  const priceToggle =
+    canTogglePrice && !dense ? (
+      <ChartShowPriceButton
+        showPrice={chartViewModel.showPrice}
+        onToggle={onTogglePrice}
+        compact
+      />
+    ) : null;
+
+  const landscapeButton =
+    !showSpinner && chartViewModel.hasChartData && !dense ? (
+      <Pressable
+        onPress={() => setIsLandscapeMode(true)}
+        accessibilityRole="button"
+        accessibilityLabel="Открыть график в альбомном режиме"
+        className="h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#21262d] bg-[#0F1115]/95">
+        <RectangleHorizontal size={16} color="#8b949e" />
+      </Pressable>
+    ) : null;
+
+  const overlayActions =
+    priceToggle || landscapeButton ? (
+      <View className="flex-row items-center gap-1.5">
+        {priceToggle}
+        {landscapeButton}
+      </View>
+    ) : undefined;
+
   return (
-    <View className="gap-2.5">
+    <View className={fill ? 'min-h-0 flex-1' : dense ? 'gap-1.5' : 'gap-2.5'}>
       <ChartCanvas
         chartKey={chartViewModel.chartKey}
         chartData={chartViewModel.chartData}
         width={chartWidth}
         height={chartHeight}
         showSpinner={showSpinner}
-        compactFrame
+        compactFrame={!fill}
+        fill={fill}
+        variant={fill ? 'fullBleed' : 'default'}
+        compactGutters={fill || dense}
         overlay={
-          <View className="absolute inset-x-0 top-0 z-10 flex-row items-start justify-between gap-2">
-            <View className="flex-1 shrink">
-              <ChartStatsOverlay stats={chartViewModel.assetStats} />
-            </View>
-            {!showSpinner && chartViewModel.hasChartData ? (
-              <Pressable
-                onPress={() => setIsLandscapeMode(true)}
-                accessibilityRole="button"
-                accessibilityLabel="Открыть график в альбомном режиме"
-                className="mt-0.5 h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#21262d] bg-[#0F1115]/95">
-                <RectangleHorizontal size={16} color="#8b949e" />
-              </Pressable>
-            ) : null}
+          <View className="absolute inset-x-0 top-0 z-10 px-0.5 pt-0.5">
+            <ChartPriceOverlay
+              stats={chartViewModel.assetStats}
+              dense={dense || fill}
+              action={overlayActions}
+            />
           </View>
         }
       />
 
-      <ChartLandscapeModal
-        visible={isLandscapeMode}
-        onClose={() => setIsLandscapeMode(false)}
-        chartKey={chartViewModel.chartKey}
-        chartData={chartViewModel.chartData}
-        showSpinner={showSpinner}
-        assetStats={chartViewModel.assetStats}
-        view={view}
-        legalSeries={chartViewModel.legalSeries}
-        priceColor={chartViewModel.priceColor}
-        latestSignalValue={chartViewModel.latestSignalValue}
-        signalThresholds={chartViewModel.signalThresholds}
-        metric={metric}
-        isFiz={isFiz}
-      />
+      {!dense && !fill ? (
+        <ChartLandscapeModal
+          visible={isLandscapeMode}
+          onClose={() => setIsLandscapeMode(false)}
+          chartKey={chartViewModel.chartKey}
+          chartData={chartViewModel.chartData}
+          showSpinner={showSpinner}
+          assetStats={chartViewModel.assetStats}
+          view={view}
+          legalSeries={chartViewModel.legalSeries}
+          priceColor={chartViewModel.priceColor}
+          latestSignalValue={chartViewModel.latestSignalValue}
+          signalThresholds={chartViewModel.signalThresholds}
+          metric={metric}
+          isFiz={isFiz}
+          showPrice={chartViewModel.showPrice}
+        />
+      ) : null}
 
-      <ChartLegend
-        view={view}
-        legalSeries={chartViewModel.legalSeries}
-        priceColor={chartViewModel.priceColor}
-        latestPrice={chartViewModel.assetStats.latestPrice}
-        latestSignalValue={chartViewModel.latestSignalValue}
-        signalThresholds={chartViewModel.signalThresholds}
-        metric={metric}
-        isFiz={isFiz}
-      />
+      {!hideLegend ? (
+        <ChartLegend
+          view={view}
+          legalSeries={chartViewModel.legalSeries}
+          priceColor={chartViewModel.priceColor}
+          latestPrice={chartViewModel.assetStats.latestPrice}
+          latestSignalValue={chartViewModel.latestSignalValue}
+          signalThresholds={chartViewModel.signalThresholds}
+          metric={metric}
+          isFiz={isFiz}
+          showPrice={chartViewModel.showPrice}
+          variant={dense ? 'compact' : 'default'}
+        />
+      ) : null}
     </View>
   );
 };

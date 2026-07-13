@@ -28,14 +28,9 @@ export interface ChartLegalSeriesItem {
 }
 
 export interface ChartAssetStats {
-  latestOpen: number | undefined;
-  maxPrice: number | undefined;
-  minPrice: number | undefined;
   latestPrice: number | undefined;
   changeValue: number | undefined;
   changePerc: number | undefined;
-  changeColor: string;
-  volume: string | undefined;
 }
 
 export interface ChartPriceLineColors {
@@ -50,6 +45,7 @@ export interface ChartViewModel {
   priceColor: string;
   assetStats: ChartAssetStats;
   hasChartData: boolean;
+  showPrice: boolean;
   latestSignalValue?: number;
   signalThresholds?: {
     overbought: number;

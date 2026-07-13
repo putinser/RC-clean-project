@@ -95,6 +95,7 @@ interface BuildPositionChartDataParams {
   metric: ChartMetricId;
   view: ChartViewId;
   isFiz: boolean;
+  showPrice: boolean;
 }
 
 const buildPositionChartData = ({
@@ -103,6 +104,7 @@ const buildPositionChartData = ({
   metric,
   view,
   isFiz,
+  showPrice,
 }: BuildPositionChartDataParams) => {
   const legalSeriesConfigs = getLegalSeriesConfigs(metric, view);
   const priceColors = getPriceLineColors(view);
@@ -111,6 +113,8 @@ const buildPositionChartData = ({
   const tooltipSeries: ChartTooltipSeries[] = [];
   let leftMin = Infinity;
   let leftMax = -Infinity;
+
+  const withAreaFill = !showPrice && legalSeriesConfigs.length === 1;
 
   legalSeriesConfigs.forEach((config) => {
     const values: number[] = [];
@@ -136,6 +140,7 @@ const buildPositionChartData = ({
       points,
       yAxis: 'left',
       latestValue,
+      areaFill: withAreaFill,
     };
 
     series.push(lineSeries);
@@ -169,39 +174,49 @@ const buildPositionChartData = ({
   });
   const priceValues = pricePoints.map((item) => item.value);
   const latestPrice = priceValues.at(-1) ?? undefined;
-  const priceSeries: ChartLineSeries = {
-    id: 'price',
-    name: 'Price',
-    color: priceColors.line,
-    points: pricePoints,
-    yAxis: 'right',
-    step: 'end',
-    latestValue: latestPrice,
-  };
 
-  series.push(priceSeries);
-  tooltipSeries.push({
-    id: 'price',
-    name: 'Фьючерс',
-    color: priceColors.line,
-    points: pricePoints,
-    formatValue: (value) => value.toLocaleString('ru-RU'),
-  });
+  if (showPrice) {
+    const priceSeries: ChartLineSeries = {
+      id: 'price',
+      name: 'Price',
+      color: priceColors.line,
+      points: pricePoints,
+      yAxis: 'right',
+      step: 'end',
+      latestValue: latestPrice,
+    };
+
+    series.push(priceSeries);
+    tooltipSeries.push({
+      id: 'price',
+      name: 'Фьючерс',
+      color: priceColors.line,
+      points: pricePoints,
+      formatValue: (value) => value.toLocaleString('ru-RU'),
+    });
+  }
 
   const timelinePoints =
-    pricePoints.length > 0
+    showPrice && pricePoints.length > 0
       ? pricePoints
       : series.flatMap((item) => item.points);
   const xRange = getXRange(timelinePoints);
   const periodInMilliseconds = xRange.max - xRange.min;
 
+  const leftMarkLines = series
+    .filter((item) => item.yAxis === 'left')
+    .map((item) => buildLatestMarkLine(item, 'start', '#0F1115'))
+    .filter((item): item is ChartMarkLine => item !== null);
+
+  const priceSeries = series.find((item) => item.id === 'price');
+  const priceMarkLine = priceSeries
+    ? buildLatestMarkLine(priceSeries, 'end', priceColors.labelText)
+    : null;
+
   const markLines = [
-    ...series
-      .filter((item) => item.yAxis === 'left')
-      .map((item) => buildLatestMarkLine(item, 'start', '#0F1115'))
-      .filter((item): item is ChartMarkLine => item !== null),
-    buildLatestMarkLine(priceSeries, 'end', priceColors.labelText),
-  ].filter((item): item is ChartMarkLine => item !== null);
+    ...leftMarkLines,
+    ...(priceMarkLine ? [priceMarkLine] : []),
+  ];
 
   return {
     chartData: {
@@ -211,10 +226,12 @@ const buildPositionChartData = ({
         ...getYAxisScaleFromShiftedRange(leftMin, leftMax),
         formatLabel: formatChartAxisValue,
       },
-      rightYAxis: {
-        ...getPriceYAxisScale(priceValues),
-        formatLabel: (value: number) => value.toLocaleString('ru-RU'),
-      },
+      rightYAxis: showPrice
+        ? {
+            ...getPriceYAxisScale(priceValues),
+            formatLabel: (value: number) => value.toLocaleString('ru-RU'),
+          }
+        : undefined,
       series,
       markLines,
       tooltipSeries,
@@ -398,6 +415,7 @@ export interface BuildSkiaChartDataParams {
   view: ChartViewId;
   metric: ChartMetricId;
   isFiz?: boolean;
+  showPrice?: boolean;
 }
 
 export const buildSkiaChartData = ({
@@ -409,6 +427,7 @@ export const buildSkiaChartData = ({
   view,
   metric,
   isFiz = false,
+  showPrice = true,
 }: BuildSkiaChartDataParams): BuildSkiaChartDataResult => {
   if (view === 'signals') {
     return buildSignalsChartData({
@@ -431,6 +450,7 @@ export const buildSkiaChartData = ({
     metric,
     view,
     isFiz,
+    showPrice,
   });
 };
 

@@ -11,7 +11,11 @@ export const getChartViewModel = ({
   view,
   metric,
   isFiz = false,
-}: Omit<ChartViewProps, 'isLoading'>): ChartViewModel => {
+  showPrice = true,
+}: Omit<ChartViewProps, 'isLoading'> & {showPrice?: boolean}): ChartViewModel => {
+  const canTogglePrice = view === 'buy-sell' || view === 'buyers-sellers';
+  const effectiveShowPrice = canTogglePrice ? showPrice : true;
+
   const built = buildSkiaChartData({
     assetsLegal,
     assetsPrice,
@@ -21,13 +25,19 @@ export const getChartViewModel = ({
     view,
     metric,
     isFiz,
+    showPrice: effectiveShowPrice,
   });
 
   const latestValue =
     built.latestPrice ?? selectedAsset?.price?.value ?? undefined;
 
+  const chartKeyBase =
+    view === 'signals' || view === 'asset-price'
+      ? `${view}-${isFiz ? 'fiz' : 'yur'}`
+      : `${view}-${metric}-${effectiveShowPrice ? 'price' : 'solo'}`;
+
   return {
-    chartKey: `${view}-${view === 'signals' || view === 'asset-price' ? (isFiz ? 'fiz' : 'yur') : metric}`,
+    chartKey: chartKeyBase,
     chartData: built.chartData,
     legalSeries: built.legalSeries,
     priceColor: built.priceColor,
@@ -35,5 +45,6 @@ export const getChartViewModel = ({
     hasChartData: built.chartData.series.some((series) => series.points.length > 0),
     latestSignalValue: built.latestRsi,
     signalThresholds: built.signalThresholds,
+    showPrice: effectiveShowPrice,
   };
 };

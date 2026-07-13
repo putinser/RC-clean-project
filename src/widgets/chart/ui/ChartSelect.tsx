@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import {Modal, Pressable, ScrollView, Text, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ChevronDown} from 'lucide-react-native';
 import {cn} from '@shared/lib/cn';
 import type {MetricOption} from '../config/chartMetric';
@@ -14,6 +15,8 @@ type ChartDropdownProps = {
   value: string;
   onChange: (value: string) => void;
   ariaLabel?: string;
+  compact?: boolean;
+  className?: string;
 };
 
 function ChartDropdown({
@@ -21,8 +24,11 @@ function ChartDropdown({
   value,
   onChange,
   ariaLabel,
+  compact = false,
+  className,
 }: ChartDropdownProps) {
   const [open, setOpen] = useState(false);
+  const insets = useSafeAreaInsets();
   const selected = options.find((opt) => opt.value === value);
 
   return (
@@ -30,11 +36,22 @@ function ChartDropdown({
       <Pressable
         accessibilityLabel={ariaLabel}
         onPress={() => setOpen(true)}
-        className="min-h-[40px] w-full min-w-0 flex-row items-center justify-between gap-2 rounded-xl border border-[#464B52] bg-[#181B22] px-3 py-2">
-        <Text className="min-w-0 flex-1 shrink text-sm text-white" numberOfLines={1}>
+        className={cn(
+          'w-full min-w-0 flex-row items-center justify-between gap-2 border border-[#464B52] bg-[#181B22]',
+          compact
+            ? 'min-h-[32px] rounded-[10px] px-2 py-1'
+            : 'min-h-[40px] rounded-xl px-3 py-2',
+          className,
+        )}>
+        <Text
+          className={cn(
+            'min-w-0 flex-1 shrink text-white',
+            compact ? 'text-xs' : 'text-sm',
+          )}
+          numberOfLines={1}>
           {selected?.label ?? 'Выберите...'}
         </Text>
-        <ChevronDown color="#87A3AB" size={16} />
+        <ChevronDown color="#87A3AB" size={compact ? 14 : 16} />
       </Pressable>
 
       <Modal
@@ -47,7 +64,9 @@ function ChartDropdown({
             className="absolute inset-0 bg-black/60"
             onPress={() => setOpen(false)}
           />
-          <View className="max-h-[50%] rounded-t-2xl border border-[#464B52] bg-[#0F1115] px-2 pb-8 pt-3">
+          <View
+            className="max-h-[50%] rounded-t-2xl border border-[#464B52] bg-[#0F1115] px-2 pt-3"
+            style={{paddingBottom: Math.max(insets.bottom, 16) + 8}}>
             <ScrollView>
               {options.map((opt) => {
                 const isActive = opt.value === value;
@@ -85,6 +104,8 @@ type ChartSelectProps = {
   value: string;
   onChange: (value: string) => void;
   ariaLabel?: string;
+  compact?: boolean;
+  className?: string;
 };
 
 export const ChartSelect = ({
@@ -92,6 +113,8 @@ export const ChartSelect = ({
   value,
   onChange,
   ariaLabel,
+  compact,
+  className,
 }: ChartSelectProps) => {
   const dropdownOptions = options.map((opt) => ({
     value: opt.id,
@@ -104,6 +127,8 @@ export const ChartSelect = ({
       value={value}
       onChange={onChange}
       ariaLabel={ariaLabel}
+      compact={compact}
+      className={className}
     />
   );
 };
@@ -112,9 +137,15 @@ type MetricSelectProps = {
   options: MetricOption[];
   value: string;
   onChange: (value: string) => void;
+  compact?: boolean;
 };
 
-export const MetricSelect = ({options, value, onChange}: MetricSelectProps) => {
+export const MetricSelect = ({
+  options,
+  value,
+  onChange,
+  compact,
+}: MetricSelectProps) => {
   const dropdownOptions = options.map((opt) => ({
     value: opt.id,
     label: opt.label2 ? `${opt.label1}/${opt.label2}` : opt.label1,
@@ -126,6 +157,7 @@ export const MetricSelect = ({options, value, onChange}: MetricSelectProps) => {
       value={value}
       onChange={onChange}
       ariaLabel="Показатель"
+      compact={compact}
     />
   );
 };

@@ -7,20 +7,11 @@ export const getChartAssetStats = (
 ): ChartAssetStats => {
   const changeValue = selectedAsset?.price?.daily_changes_value;
   const changePerc = selectedAsset?.price?.daily_changes_perc;
+  const price = latestPrice ?? selectedAsset?.price?.value;
 
   return {
-    latestOpen: latestPrice,
-    maxPrice: latestPrice,
-    minPrice: latestPrice,
-    latestPrice,
+    latestPrice: price,
     changeValue,
     changePerc,
-    changeColor:
-      changeValue !== undefined && changeValue >= 0
-        ? '#34D399'
-        : '#EF4444',
-    volume: selectedAsset
-      ? (((selectedAsset.id * 1234567) % 90000000) + 10000000).toLocaleString()
-      : undefined,
   };
 };
