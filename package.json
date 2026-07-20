@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
+    "android:apk": "cd android && ./gradlew assembleDebugEmbedded",
+    "android:standalone": "react-native run-android --mode=debugEmbedded",
+    "android:fix-gradle": "pkill -f 'GradleDaemon|org.gradle.launcher' 2>/dev/null || true; rm -rf android/.gradle ~/.gradle/caches/*/transforms",
     "ios": "react-native run-ios",
+    "ios:standalone": "FORCE_BUNDLING=1 react-native run-ios",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",

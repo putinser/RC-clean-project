@@ -7,6 +7,7 @@ React Native приложение без Expo, полностью настрое
 - [Требования](#требования)
 - [Установка](#установка)
 - [Запуск приложения](#запуск-приложения)
+- [Сборка для тестирования без Metro](#сборка-для-тестирования-без-metro)
 - [Структура проекта](#структура-проекта)
 - [Доступные скрипты](#доступные-скрипты)
 - [Конфигурация](#конфигурация)
@@ -85,6 +86,46 @@ npm run ios
 npx react-native run-ios
 ```
 
+## 📦 Сборка для тестирования без Metro
+
+Для ежедневной разработки используйте обычный `debug` — он работает с Metro, Fast Refresh и dev menu.
+
+Для отправки заказчику или тестировщику собирайте **`debugEmbedded`**: JS-бандл вшит в приложение, Metro не нужен.
+
+### Android
+
+Собрать APK:
+
+```bash
+npm run android:apk
+```
+
+Готовый файл:
+
+```
+android/app/build/outputs/apk/debugEmbedded/app-debugEmbedded.apk
+```
+
+Установить на подключённое устройство:
+
+```bash
+npm run android:standalone
+```
+
+### iOS (только macOS)
+
+Собрать и запустить с вшитым бандлом:
+
+```bash
+npm run ios:standalone
+```
+
+### Важно
+
+- После изменений в JS пересобирайте `debugEmbedded` — Fast Refresh в этой сборке не работает.
+- Это debug-сборка (`__DEV__ = true`), не release. Для продакшена используйте `assembleRelease`.
+- Переменные из `.env` (react-native-config) вшиваются на этапе сборки — проверяйте `.env` перед отправкой APK.
+
 ## 📂 Структура проекта
 
 ```
@@ -130,11 +171,23 @@ RC2App/
 # Запуск Metro bundler
 npm start
 
-# Запуск на Android
+# Запуск на Android (dev, с Metro)
 npm run android
 
-# Запуск на iOS
+# Сборка APK для тестирования без Metro
+npm run android:apk
+
+# Установка debugEmbedded на устройство
+npm run android:standalone
+
+# Починить битый кэш Gradle (если settings-plugin.jar not found)
+npm run android:fix-gradle
+
+# Запуск на iOS (dev, с Metro)
 npm run ios
+
+# Запуск на iOS с вшитым бандлом (без Metro)
+npm run ios:standalone
 
 # Проверка кода с ESLint
 npm run lint
@@ -269,6 +322,22 @@ cd android
 ./gradlew clean
 cd ..
 npx react-native run-android
+```
+
+### Gradle: `settings-plugin.jar` / `NoSuchFileException`
+
+Битый кэш Gradle. `./gradlew` в этом состоянии не работает — сначала:
+
+```bash
+npm run android:fix-gradle
+```
+
+Затем снова:
+
+```bash
+npm run android:standalone
+# или
+npm run android:apk
 ```
 
 ### Ошибки при сборке iOS
